@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>수능 영어 · 문제 캡처 분석</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<style>
+  :root{
+    --paper:#EFF0EA; --surface:#FFFFFF; --ink:#1B2430; --sub:#5C6672; --faint:#8A93A0;
+    --line:#E4E6DE; --pen:#1F5468; --pen-d:#16404F; --marker:#FCE7A0;
+    --vocab:#2C6CB0; --grammar:#6E51C8; --explain:#1F8C63;
+    --err:#D2493C; --err-bg:#FCEDEB;
+    --kr:"Pretendard","Pretendard Variable",system-ui,sans-serif;
+    --en:"Newsreader",Georgia,serif;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--kr);line-height:1.6;-webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(circle at 1px 1px, rgba(31,84,104,.05) 1px, transparent 0);background-size:22px 22px;}
+  .wrap{max-width:760px;margin:0 auto;padding:0 20px 96px;}
+
+  header{padding:46px 0 22px;}
+  .eyebrow{font-size:12px;font-weight:700;letter-spacing:.16em;color:var(--pen);text-transform:uppercase;display:flex;align-items:center;gap:9px;margin-bottom:16px;}
+  .eyebrow::before{content:"";width:26px;height:2px;background:var(--pen);display:inline-block;}
+  h1{font-family:var(--en);font-weight:500;font-size:clamp(30px,6vw,46px);line-height:1.08;margin:0;letter-spacing:-.01em;}
+  h1 .ko{font-family:var(--kr);font-weight:700;}
+  .lede{color:var(--sub);font-size:14.5px;margin:14px 0 0;}
+
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;margin:26px 0 0;box-shadow:0 18px 40px -32px rgba(27,36,48,.4);}
+  textarea{width:100%;min-height:140px;resize:vertical;border:1px solid var(--line);border-radius:11px;padding:15px 16px;font-family:var(--en);font-size:17px;line-height:1.6;color:#283341;background:#fbfbf9;}
+  textarea:focus{outline:2px solid var(--pen);outline-offset:0;border-color:var(--pen);}
+  textarea::placeholder{font-family:var(--kr);color:var(--faint);font-size:15px;}
+  .or{display:flex;align-items:center;gap:12px;margin:16px 0;color:var(--faint);font-size:12px;font-weight:600;letter-spacing:.06em;}
+  .or::before,.or::after{content:"";flex:1;height:1px;background:var(--line);}
+  .drop{border:1.5px dashed #c8ccc1;border-radius:11px;padding:18px;text-align:center;color:var(--sub);font-size:13.5px;transition:border-color .15s,background .15s;}
+  .drop.over{border-color:var(--pen);background:rgba(31,84,104,.04);}
+  .drop b{color:var(--ink);font-weight:700;}
+  .linkish{background:none;border:0;color:var(--pen);font:inherit;font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:0 2px;}
+  .thumb{margin-top:13px;display:flex;align-items:center;gap:11px;}
+  .thumb img{max-height:96px;border-radius:9px;border:1px solid var(--line);}
+  .thumb .rm{background:none;border:1px solid var(--line);border-radius:8px;padding:5px 11px;font:inherit;font-size:12.5px;color:var(--sub);cursor:pointer;}
+  .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;align-items:center;}
+  .primary{background:var(--pen);color:#fff;border:0;border-radius:10px;padding:12px 22px;font-family:var(--kr);font-size:15px;font-weight:700;cursor:pointer;transition:background .15s;}
+  .primary:hover{background:var(--pen-d);}
+  .primary:disabled{opacity:.55;cursor:default;}
+  .ghost{background:none;border:1px solid var(--line);border-radius:10px;padding:12px 16px;font-family:var(--kr);font-size:14px;font-weight:600;color:var(--sub);cursor:pointer;}
+  .ghost:hover{border-color:#cfd2c9;color:var(--ink);}
+  .primary:focus-visible,.ghost:focus-visible,.linkish:focus-visible{outline:2px solid var(--pen);outline-offset:2px;}
+  .err{margin-top:14px;background:var(--err-bg);color:#8c2c22;border-radius:10px;padding:11px 14px;font-size:13.5px;}
+  .hint{margin-top:14px;color:var(--faint);font-size:12.5px;}
+
+  .back{background:none;border:0;color:var(--pen);font:inherit;font-weight:700;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;padding:0;margin:0 0 18px;}
+  .back:focus-visible{outline:2px solid var(--pen);outline-offset:3px;border-radius:4px;}
+
+  .passage,.solve{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:24px;box-shadow:0 18px 40px -34px rgba(27,36,48,.4);}
+  .passage{margin:6px 0 8px;}
+  .solve{margin:14px 0 4px;}
+  .cap{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--faint);text-transform:uppercase;margin-bottom:13px;display:flex;align-items:center;gap:10px;}
+  .passage p{font-family:var(--en);font-size:19.5px;line-height:1.74;color:#222b36;margin:0;}
+  .psent{font:inherit;color:inherit;background:none;border:0;padding:1px 2px;margin:0;cursor:pointer;border-radius:4px;transition:background .18s,box-shadow .18s;text-align:left;}
+  .psent:hover{box-shadow:inset 0 -.6em 0 rgba(252,231,160,.55);}
+  .psent.active{background:linear-gradient(180deg,transparent 58%,var(--marker) 58%);}
+  .psent:focus-visible{outline:2px solid var(--pen);outline-offset:2px;}
+
+  /* 해설 카드 */
+  .qtype{font-size:11px;font-weight:700;color:var(--pen);background:rgba(31,84,104,.08);border-radius:999px;padding:3px 10px;letter-spacing:.02em;text-transform:none;}
+  .block{margin:0 0 16px;}
+  .block:last-child{margin-bottom:0;}
+  .blab{display:inline-block;font-size:12px;font-weight:700;color:var(--sub);margin-bottom:6px;letter-spacing:.02em;}
+  .val{font-size:15px;color:var(--ink);line-height:1.66;}
+  .val code{font-family:var(--en);font-style:italic;background:#f1f2ed;padding:1px 5px;border-radius:4px;color:#2a3340;}
+  .answer{background:#f1f8f4;border:1px solid #d8ebe0;border-radius:11px;padding:14px 16px;margin:4px 0 16px;}
+  .ans-head{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--explain);margin-bottom:8px;}
+  .ans-head b{font-size:19px;}
+  .ans-reason{font-size:14.5px;color:#2f4a3d;line-height:1.68;}
+  .ans-reason code{font-family:var(--en);font-style:italic;background:#e6f1ea;padding:1px 5px;border-radius:4px;}
+  .choices2{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:8px;}
+  .choice2{border:1px solid var(--line);border-radius:10px;padding:11px 13px;}
+  .choice2.correct{border-color:#bfe3cd;background:#f4faf6;}
+  .choice2 .top{display:flex;align-items:center;gap:9px;}
+  .choice2 .lab2{font-weight:700;color:var(--sub);font-variant-numeric:tabular-nums;}
+  .choice2.correct .lab2{color:var(--explain);}
+  .choice2 .txt2{font-family:var(--en);font-size:15px;color:#283341;flex:1;}
+  .choice2 .tag2{font-size:11px;font-weight:700;border-radius:999px;padding:2px 9px;flex:none;}
+  .choice2.correct .tag2{background:var(--explain);color:#fff;}
+  .choice2.wrong .tag2{background:#eceee8;color:var(--sub);}
+  .choice2 .note2{font-size:13.5px;color:#4a5360;line-height:1.62;margin-top:7px;}
+
+  .statusbar{display:flex;align-items:center;gap:10px;margin:18px 0 6px;color:var(--sub);font-size:13.5px;}
+  .statusbar .spin{width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--pen);border-radius:50%;animation:spin .7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  .controls{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:14px 0 8px;}
+  .toggle{display:inline-flex;align-items:center;gap:9px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:8px 15px;font-family:var(--kr);font-size:13px;font-weight:600;color:var(--ink);cursor:pointer;}
+  .toggle .dot{width:9px;height:9px;border-radius:50%;background:var(--faint);transition:background .15s;}
+  .toggle[aria-pressed="true"]{border-color:var(--pen);color:var(--pen);}
+  .toggle[aria-pressed="true"] .dot{background:var(--pen);}
+  .toggle:focus-visible{outline:2px solid var(--pen);outline-offset:2px;}
+  .counter{margin-left:auto;font-size:13px;color:var(--sub);font-variant-numeric:tabular-nums;}
+  .counter b{color:var(--pen);font-weight:700;}
+  .sech{font-family:var(--en);font-size:13px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:.12em;margin:26px 2px 12px;}
+
+  .legend{display:flex;flex-wrap:wrap;gap:7px 16px;margin:4px 2px 16px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--sub);font-weight:500;}
+  .legend i{width:10px;height:10px;border-radius:3px;display:inline-block;}
+
+  .rows{display:flex;flex-direction:column;gap:12px;}
+  .row{background:var(--surface);border:1px solid var(--line);border-radius:13px;overflow:hidden;transition:border-color .2s,box-shadow .2s;}
+  .row.open{border-color:#cdd0c7;box-shadow:0 18px 40px -34px rgba(27,36,48,.55);}
+  .rowhead{width:100%;display:flex;gap:14px;align-items:flex-start;background:none;border:0;padding:18px;cursor:pointer;text-align:left;font-family:inherit;}
+  .rowhead:focus-visible{outline:2px solid var(--pen);outline-offset:-2px;border-radius:13px;}
+  .num{flex:none;width:27px;height:27px;border-radius:8px;margin-top:2px;display:grid;place-items:center;font-size:13px;font-weight:700;background:#eef1ec;color:var(--sub);transition:background .2s,color .2s;font-variant-numeric:tabular-nums;}
+  .row.open .num{background:var(--pen);color:#fff;}
+  .stext{flex:1;font-family:var(--en);font-size:18px;line-height:1.55;color:#283341;transition:background .25s;padding:1px 3px;border-radius:4px;}
+  .row.open .stext{background:linear-gradient(180deg,transparent 60%,var(--marker) 60%);}
+  .chev{flex:none;color:var(--faint);margin-top:5px;transition:transform .3s;}
+  .row.open .chev{transform:rotate(180deg);color:var(--pen);}
+  .drawer{display:grid;grid-template-rows:0fr;transition:grid-template-rows .34s ease;}
+  .row.open .drawer{grid-template-rows:1fr;}
+  .drawer-inner{overflow:hidden;}
+  .body{padding:2px 18px 20px 59px;}
+  @media(max-width:520px){.body{padding-left:18px;}}
+  .trans{font-size:16px;color:var(--ink);font-weight:500;line-height:1.7;padding:13px 15px;background:#f7f8f4;border-radius:10px;margin-bottom:16px;border-left:3px solid var(--pen);}
+  .trans.hidden{color:transparent;user-select:none;background:#eceee8;border-left-color:#d6d9d0;text-shadow:0 0 9px rgba(40,51,65,.55);cursor:pointer;}
+  .trans.hidden::after{content:"해석 보기";position:absolute;color:var(--sub);text-shadow:none;font-size:12px;font-weight:700;}
+  .trans-wrap{position:relative;}
+  .cat{display:flex;gap:13px;padding:11px 0;border-top:1px solid #eef0ea;}
+  .cat:first-of-type{border-top:0;}
+  .lab{flex:none;width:80px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:7px;padding-top:1px;}
+  .lab i{width:9px;height:9px;border-radius:3px;flex:none;}
+  .lab.vocab{color:var(--vocab);} .lab.vocab i{background:var(--vocab);}
+  .lab.grammar{color:var(--grammar);} .lab.grammar i{background:var(--grammar);}
+  .lab.explain{color:var(--explain);} .lab.explain i{background:var(--explain);}
+  .content{flex:1;font-size:14.5px;color:#37414e;line-height:1.62;}
+  @media(max-width:520px){.cat{flex-direction:column;gap:5px;} .lab{width:auto;}}
+  .words{display:flex;flex-direction:column;gap:5px;}
+  .word{display:flex;gap:9px;align-items:baseline;}
+  .word .w{font-family:var(--en);font-weight:600;color:var(--vocab);font-size:15px;min-width:96px;}
+  .word .m{color:#37414e;}
+  .content code{font-family:var(--en);font-style:italic;background:#f1f2ed;padding:1px 5px;border-radius:4px;font-size:.96em;color:#2a3340;}
+  .explainbox{background:#f1f8f4;border-radius:9px;padding:11px 14px;line-height:1.7;}
+
+  .sk{height:12px;border-radius:6px;background:linear-gradient(90deg,#eef0ea,#f6f7f3,#eef0ea);background-size:200% 100%;animation:sh 1.2s infinite;margin:7px 0;}
+  @keyframes sh{to{background-position:-200% 0;}}
+  footer{margin-top:40px;font-size:12.5px;color:var(--faint);line-height:1.7;text-align:center;}
+  .hide{display:none!important;}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">수능 영어 · 문제 캡처 분석</div>
+    <h1><span class="ko">문제를 캡처하면,</span> 끝까지</h1>
+    <p class="lede">지문·선지가 담긴 문제를 캡처해 올리면 — 주제·요약·정답과 이유·선지 분석·문장별 해설까지 한 번에 만들어 드려요.</p>
+  </header>
+
+  <section id="inputView">
+    <div class="card">
+      <textarea id="ta" placeholder="문제 전체를 붙여넣어도 되고, 지문만 넣어도 됩니다."></textarea>
+      <div class="or">또는</div>
+      <div class="drop" id="drop">
+        문제 캡처 이미지를 끌어다 놓거나 <b>Ctrl/Cmd&nbsp;+&nbsp;V</b>로 붙여넣기,
+        <button class="linkish" id="pick">파일 선택</button>
+        <input type="file" id="file" accept="image/*" hidden>
+      </div>
+      <div class="thumb hide" id="thumb"></div>
+      <div class="actions">
+        <button class="primary" id="go">분석하기</button>
+        <button class="ghost" id="demo">예시로 둘러보기</button>
+      </div>
+      <div class="err hide" id="err"></div>
+      <p class="hint">팁 · 본문·요약문·선지가 다 보이게 캡처하면 정답과 선지 분석까지 나와요. 지문만 넣으면 주제·요약·문장 해설만 제공합니다.</p>
+    </div>
+  </section>
+
+  <section id="resultView" class="hide">
+    <button class="back" id="back">← 새 문제 분석</button>
+
+    <div class="passage" aria-label="지문 전체">
+      <div class="cap">Passage</div>
+      <p id="full"></p>
+    </div>
+
+    <section class="solve" id="solve" aria-label="해설">
+      <div class="cap">해설 <span class="qtype hide" id="qtype"></span></div>
+      <div class="block"><span class="blab">주제</span><div class="val" id="theme"><div class="sk" style="width:80%"></div></div></div>
+      <div class="block"><span class="blab">요약</span><div class="val" id="summary"><div class="sk" style="width:92%"></div><div class="sk" style="width:58%"></div></div></div>
+      <div class="answer hide" id="answerBox">
+        <div class="ans-head">정답 <b id="ansVal"></b></div>
+        <div class="ans-reason" id="ansReason"></div>
+      </div>
+      <div class="block hide" id="choiceBox">
+        <span class="blab">선지 분석</span>
+        <ul class="choices2" id="choiceList"></ul>
+      </div>
+    </section>
+
+    <div class="statusbar hide" id="status"><span class="spin"></span><span id="statusTxt"></span></div>
+
+    <div class="sech">문장별 분석</div>
+    <div class="controls">
+      <button class="toggle" id="hideTrans" aria-pressed="false"><span class="dot"></span> 해석 가리기</button>
+      <div class="counter">펼친 문장 <b id="count">0</b> / <span id="total">0</span></div>
+    </div>
+    <div class="legend" aria-hidden="true">
+      <span><i style="background:var(--pen)"></i>해석</span>
+      <span><i style="background:var(--vocab)"></i>단어</span>
+      <span><i style="background:var(--grammar)"></i>어법</span>
+      <span><i style="background:var(--explain)"></i>쉬운 설명</span>
+    </div>
+    <div class="rows" id="rows" aria-label="문장별 분석"></div>
+  </section>
+
+  <footer>분석은 화면 안에서 생성됩니다 · 정답·해설은 학습 참고용이며, 애매한 부분은 선생님께 확인하세요.</footer>
+</div>
+
+<script>
+/* ---------- 예시 데이터 ---------- */
+const SAMPLE=[
+  {en:"Many people assume that unlimited freedom is the ideal condition for creative work.",kr:"많은 사람들은 무제한의 자유가 창의적인 작업에 이상적인 조건이라고 가정한다.",words:[["assume","가정하다, 여기다"],["unlimited","무제한의"],["ideal","이상적인"],["condition","조건, 상태"]],grammar:"<code>assume that + 주어 + 동사</code> 구조예요. that은 명사절 접속사로, assume의 목적어가 통째로 한 문장입니다.",explain:"사람들은 보통 '자유가 많을수록 창의력이 잘 발휘된다'고 믿어요. 이 문장은 그런 통념을 먼저 소개하는 부분이고, 뒤에서 이 생각을 뒤집을 거라는 신호이기도 합니다."},
+  {en:"However, what actually drives innovation is often the presence of constraints rather than their absence.",kr:"그러나 실제로 혁신을 이끄는 것은 흔히 제약의 부재가 아니라 그 존재이다.",words:[["drive","이끌다, 추진하다"],["innovation","혁신"],["presence","존재"],["constraint","제약"],["absence","부재"]],grammar:"<code>what</code>은 선행사를 포함한 관계대명사 '~하는 것'. <code>what ... innovation</code>이 주어, 동사는 <code>is</code>.",explain:"However로 시작했으니 통념을 뒤집는 핵심 문장이에요. 혁신을 진짜로 이끄는 건 제약이 없는 상태가 아니라 오히려 있는 상태라는 뜻 — '자유가 아니라 제한이 창의성을 만든다'가 주제입니다."},
+  {en:"In this sense, the boundaries we resent may be the very things that make original thinking possible.",kr:"이런 의미에서, 우리가 싫어하는 그 경계가 바로 독창적인 사고를 가능하게 하는 것일지도 모른다.",words:[["boundary","경계, 한계"],["resent","싫어하다"],["the very","바로 그"],["original","독창적인"]],grammar:"<code>the boundaries (that) we resent</code>는 목적격 관계대명사 생략. <code>make + 목적어 + 형용사(possible)</code>는 5형식.",explain:"글의 결론이에요. 우리가 거추장스럽게 여기는 '한계'가 사실은 독창적 사고를 가능하게 하는 바로 그 요소일 수 있다는 메시지입니다."}
+];
+const SAMPLE_OV={type:"글의 요지",theme:"무제한의 자유보다 적절한 제약이 오히려 창의적 사고를 가능하게 한다.",summary:"사람들은 자유가 창의성에 이상적이라 믿지만, 실제로는 제약이 선택을 좁혀 집중을 돕고 독창적 사고를 이끌어낸다.",answer:null,answerReason:null};
+
+/* ---------- 요소 ---------- */
+const $=s=>document.querySelector(s);
+const inputView=$('#inputView'),resultView=$('#resultView');
+const ta=$('#ta'),drop=$('#drop'),fileInput=$('#file'),thumb=$('#thumb');
+const goBtn=$('#go'),demoBtn=$('#demo'),backBtn=$('#back'),errBox=$('#err');
+const full=$('#full'),rows=$('#rows'),statusBar=$('#status'),statusTxt=$('#statusTxt');
+const counter=$('#count'),totalEl=$('#total'),hideBtn=$('#hideTrans');
+const qtypeEl=$('#qtype'),themeEl=$('#theme'),summaryEl=$('#summary');
+const answerBox=$('#answerBox'),ansVal=$('#ansVal'),ansReason=$('#ansReason');
+const choiceBox=$('#choiceBox'),choiceList=$('#choiceList');
+let pendingImage=null;
+
+/* ---------- 이미지 입력 ---------- */
+$('#pick').addEventListener('click',()=>fileInput.click());
+fileInput.addEventListener('change',e=>{if(e.target.files[0])setImage(e.target.files[0]);});
+['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('over');}));
+['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('over');}));
+drop.addEventListener('drop',e=>{const f=e.dataTransfer.files[0];if(f&&f.type.startsWith('image/'))setImage(f);});
+document.addEventListener('paste',e=>{if(!inputView.classList.contains('hide')){const it=[...e.clipboardData.items].find(i=>i.type.startsWith('image/'));if(it)setImage(it.getAsFile());}});
+function setImage(file){const r=new FileReader();r.onload=()=>{pendingImage={media_type:file.type,data:r.result.split(',')[1]};thumb.classList.remove('hide');thumb.innerHTML=`<img src="${r.result}" alt="올린 문제 이미지"><button class="rm" id="rmImg">이미지 빼기</button>`;$('#rmImg').addEventListener('click',clearImage);};r.readAsDataURL(file);}
+function clearImage(){pendingImage=null;thumb.classList.add('hide');thumb.innerHTML='';fileInput.value='';}
+
+/* ---------- Claude 호출 ---------- */
+async function callClaude(content,system){
+  const res=await fetch("/api/analyze",{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({content,system})});
+  const data=await res.json().catch(()=>({error:"서버 응답 오류"}));
+  if(!res.ok||data.error)throw new Error(data.error||("요청 실패 ("+res.status+")"));
+  return data.text;
+}
+function extractJSON(text){
+  let t=text.trim().replace(/^```(?:json)?/i,'').replace(/```$/,'').trim();
+  const first=t.search(/[\[{]/);if(first<0)throw new Error("형식 오류");
+  const close=t[first]==='[' ?']':'}';const last=t.lastIndexOf(close);
+  return JSON.parse(t.slice(first,last+1));
+}
+function ctx(ex){
+  let t="[지문]\n"+(ex.passage||[]).join(' ');
+  if(ex.question)t+="\n\n[문제]\n"+ex.question;
+  if(ex.choices&&ex.choices.length)t+="\n\n[선지]\n"+ex.choices.join('\n');
+  return [{type:"text",text:t}];
+}
+
+/* ---------- 실행 ---------- */
+goBtn.addEventListener('click',run);
+demoBtn.addEventListener('click',()=>{showResults(SAMPLE,{loading:false});fillExplain(SAMPLE_OV);});
+backBtn.addEventListener('click',()=>{resultView.classList.add('hide');inputView.classList.remove('hide');window.scrollTo({top:0,behavior:'smooth'});});
+
+async function run(){
+  errBox.classList.add('hide');
+  const text=ta.value.trim();
+  if(!text&&!pendingImage){showErr("문제를 붙여넣거나 캡처 이미지를 올려 주세요.");return;}
+  goBtn.disabled=true;goBtn.textContent="분석 중…";
+  try{
+    const exSys="너는 수능 영어 문제를 다루는 전문가야. 입력(텍스트 또는 이미지)에서 정보를 추출해 오직 JSON 객체만 출력해. 마크다운·설명 금지. 키:\n- passage: 읽기 본문을 원문 그대로 문장 단위 문자열 배열로. 각주(* 표시), 한국어 지시문, 요약문, 선지는 제외.\n- question: 한국어 지시문과 (있다면) 빈칸 (A)/(B)가 포함된 요약문장을 합친 문자열. 없으면 \"\".\n- choices: 선택지가 있으면 [\"① ...\",\"② ...\"] 배열로 원문 그대로, 없으면 [].";
+    const exContent=pendingImage?[{type:"image",source:{type:"base64",media_type:pendingImage.media_type,data:pendingImage.data}},{type:"text",text:"이 문제 이미지에서 본문·문제·선지를 추출해 줘."}]:[{type:"text",text}];
+    const ex=extractJSON(await callClaude(exContent,exSys));
+    const passage=(ex.passage||[]).filter(s=>typeof s==='string'&&s.trim());
+    if(!passage.length)throw new Error("지문을 찾지 못했어요.");
+
+    showResults(passage,{loading:true});
+    statusBar.classList.remove('hide');
+    let done=0;const total=passage.length;
+    statusTxt.textContent=`분석 중… 문장 0/${total}`;
+
+    const sJobs=passage.map((s,i)=>analyzeOne(s).then(d=>fillRow(i,d))
+      .catch(()=>fillRow(i,{kr:"이 문장 분석에 실패했어요.",words:[],grammar:"—",explain:"—"}))
+      .finally(()=>{done++;statusTxt.textContent=`분석 중… 문장 ${done}/${total}`;}));
+
+    const oJob=(async()=>{
+      const ovSys="너는 수능 영어 해설 강사야. 주어진 지문/문제를 보고 오직 JSON만 출력. 마크다운 금지. 키:\n- type: 문제 유형을 한국어로 짧게(예 '요약문 빈칸','빈칸 추론','글의 요지','주제'). 선택지가 없으면 '독해'.\n- theme: 글의 주제를 한국어 한 문장으로.\n- summary: 글 전체 요약을 한국어 1~2문장으로.\n- answer: 선택지가 있으면 정답 기호(예 '①'), 없으면 null.\n- answerReason: 선택지가 있으면 정답인 이유를 한국어 2~4문장으로(지문 근거 포함), 없으면 null.\n영어 핵심 표현은 <code>...</code>로 감싸도 됨. 모든 설명은 한국어.";
+      const ov=extractJSON(await callClaude(ctx(ex),ovSys));
+      fillExplain(ov);
+      if(ex.choices&&ex.choices.length){
+        const chSys=`너는 수능 영어 해설 강사야. 이 문제의 정답은 ${ov.answer||'(미정)'}야. 각 선택지가 왜 정답/오답인지 한국어로 분석해 오직 JSON만 출력. 키 choiceAnalysis: 배열, 각 원소 {label:'①', text:'선택지 원문', correct:true/false, note:'한국어 설명 1~2문장'}. 선지 순서 유지. 영어 표현은 <code>...</code>로 감싸도 됨.`;
+        const ch=extractJSON(await callClaude(ctx(ex),chSys));
+        fillChoices(ch);
+      }
+    })().catch(()=>solveError());
+
+    await Promise.all([...sJobs,oJob]);
+    statusBar.classList.add('hide');
+  }catch(e){
+    inputView.classList.remove('hide');resultView.classList.add('hide');
+    showErr("분석에 실패했어요. "+(e.message||"")+" 잠시 후 다시 시도해 주세요.");
+  }finally{goBtn.disabled=false;goBtn.textContent="분석하기";}
+}
+
+async function analyzeOne(sentence){
+  const sys="너는 한국 고등학생을 돕는 수능 영어 분석 전문가야. 주어진 영어 '한 문장'을 분석해 오직 JSON 객체만 출력. 마크다운 금지. 키:\n- kr: 자연스러운 한국어 해석 한 줄.\n- words: 고등 핵심 단어를 [영단어,한국어뜻] 배열로 3~6개(기본형).\n- grammar: 어법 포인트를 한국어로. 영어 덩어리는 <code>...</code>로.\n- explain: '쉬운 설명'. 직역을 넘어 이 문장이 무슨 뜻인지 한국어로 풀어 이해시켜. 앞뒤 논리·강조점·각 부분의 의미를 2~4문장으로. 모든 설명은 한국어.";
+  return extractJSON(await callClaude([{type:"text",text:sentence}],sys));
+}
+
+/* ---------- 렌더 ---------- */
+const chev='<svg class="chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
+let rowEls=[],psents=[];
+
+function resetSolve(){
+  qtypeEl.classList.add('hide');answerBox.classList.add('hide');choiceBox.classList.add('hide');
+  themeEl.innerHTML='<div class="sk" style="width:80%"></div>';
+  summaryEl.innerHTML='<div class="sk" style="width:92%"></div><div class="sk" style="width:58%"></div>';
+}
+function showResults(items,opts){
+  inputView.classList.add('hide');resultView.classList.remove('hide');
+  totalEl.textContent=items.length;counter.textContent=0;hideBtn.setAttribute('aria-pressed','false');
+  resetSolve();
+  full.innerHTML=items.map((d,i)=>`<button class="psent" data-i="${i}">${esc(d.en)}</button>`).join(' ');
+  rows.innerHTML=items.map((d,i)=>`
+    <article class="row" data-i="${i}">
+      <button class="rowhead" aria-expanded="false"><span class="num">${i+1}</span><span class="stext">${esc(d.en)}</span>${chev}</button>
+      <div class="drawer"><div class="drawer-inner"><div class="body" id="body-${i}">${opts.loading?skeleton():bodyHTML(d)}</div></div></div>
+    </article>`).join('');
+  rowEls=[...rows.querySelectorAll('.row')];psents=[...full.querySelectorAll('.psent')];
+  rowEls.forEach((row,i)=>row.querySelector('.rowhead').addEventListener('click',()=>toggle(i,false)));
+  psents.forEach((p,i)=>p.addEventListener('click',()=>{rowEls[i].classList.contains('open')?rowEls[i].scrollIntoView({behavior:'smooth',block:'center'}):toggle(i,true);}));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function fillExplain(ov){
+  if(ov.type){qtypeEl.textContent=ov.type;qtypeEl.classList.remove('hide');}
+  themeEl.innerHTML=ov.theme||'—';
+  summaryEl.innerHTML=ov.summary||'—';
+  if(ov.answer){ansVal.textContent=ov.answer;ansReason.innerHTML=ov.answerReason||'';answerBox.classList.remove('hide');}
+}
+function fillChoices(ch){
+  const list=ch.choiceAnalysis||[];if(!list.length)return;
+  choiceList.innerHTML=list.map(c=>`
+    <li class="choice2 ${c.correct?'correct':'wrong'}">
+      <div class="top"><span class="lab2">${esc(c.label||'')}</span><span class="txt2">${esc(c.text||'')}</span><span class="tag2">${c.correct?'정답':'오답'}</span></div>
+      <div class="note2">${c.note||''}</div>
+    </li>`).join('');
+  choiceBox.classList.remove('hide');
+}
+function solveError(){themeEl.innerHTML='해설을 불러오지 못했어요. 다시 시도해 주세요.';summaryEl.innerHTML='—';}
+function fillRow(i,d){
+  document.getElementById('body-'+i).innerHTML=bodyHTML(d);
+  if(hideBtn.getAttribute('aria-pressed')==='true'){const t=document.querySelector('#body-'+i+' .trans');if(t)t.classList.add('hidden');}
+}
+function bodyHTML(d){
+  const words=(d.words||[]).map(p=>{let w,m;if(Array.isArray(p)){[w,m]=p;}else{w=p.w||p.word||'';m=p.m||p.meaning||'';}return `<div class="word"><span class="w">${esc(w)}</span><span class="m">${esc(m)}</span></div>`;}).join('');
+  return `<div class="trans-wrap"><div class="trans">${esc(d.kr||'')}</div></div>
+    <div class="cat"><div class="lab vocab"><i></i>단어</div><div class="content"><div class="words">${words||'—'}</div></div></div>
+    <div class="cat"><div class="lab grammar"><i></i>어법</div><div class="content">${d.grammar||'—'}</div></div>
+    <div class="cat"><div class="lab explain"><i></i>쉬운 설명</div><div class="content"><div class="explainbox">${d.explain||'—'}</div></div></div>`;
+}
+function skeleton(){return `<div class="sk" style="width:70%"></div><div class="sk" style="width:90%"></div><div class="sk" style="width:55%"></div>`;}
+function toggle(i,scroll){
+  const row=rowEls[i],head=row.querySelector('.rowhead');
+  const open=!row.classList.contains('open');
+  row.classList.toggle('open',open);head.setAttribute('aria-expanded',open);psents[i].classList.toggle('active',open);
+  counter.textContent=rowEls.filter(r=>r.classList.contains('open')).length;
+  if(open&&scroll)row.scrollIntoView({behavior:'smooth',block:'center'});
+}
+hideBtn.addEventListener('click',()=>{const on=hideBtn.getAttribute('aria-pressed')==='true';hideBtn.setAttribute('aria-pressed',!on);document.querySelectorAll('.trans').forEach(t=>t.classList.toggle('hidden',!on));});
+rows.addEventListener('click',e=>{const t=e.target.closest('.trans.hidden');if(t){e.stopPropagation();t.classList.remove('hidden');}});
+function showErr(m){errBox.textContent=m;errBox.classList.remove('hide');}
+function esc(s){return String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+</script>
+</body>
+</html>

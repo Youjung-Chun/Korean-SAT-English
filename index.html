@@ -2,386 +2,331 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>수능 영어 · 문제 캡처 분석</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>lucid — 막힌 문장이, 또렷해진다</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --paper:#EFF0EA; --surface:#FFFFFF; --ink:#1B2430; --sub:#5C6672; --faint:#8A93A0;
-    --line:#E4E6DE; --pen:#1F5468; --pen-d:#16404F; --marker:#FCE7A0;
-    --vocab:#2C6CB0; --grammar:#6E51C8; --explain:#1F8C63;
-    --err:#D2493C; --err-bg:#FCEDEB;
-    --kr:"Pretendard","Pretendard Variable",system-ui,sans-serif;
-    --en:"Newsreader",Georgia,serif;
+    --primary:#3A63F0; --accent:#FFB020;
+    --ink:#171A21; --sub:#5B6472; --faint:#8A93A0;
+    --bg:#F6F7F9; --surface:#FFFFFF; --line:#E6E8EE; --field:#FBFBF9;
+    --vocab:#2C6CB0; --vocab-bg:#EDF4FC;
+    --grammar:#6E51C8; --grammar-bg:#F3F0FC;
+    --syntax:#1F8C63; --syntax-bg:#EDF8F3;
+    --translation:#1F5468; --translation-bg:#EDF3F6;
+    --explain:#C4611A; --explain-bg:#FEF3EB;
+    --sel-bg:#EEF2FE; --sel-line:#3A63F0; --sel-text:#1A3580;
+    --answer-bg:#F1F8F4; --answer-border:#D8EBE0; --answer-text:#1F8C63;
+    --shadow:0 4px 16px -6px rgba(23,26,33,.10);
+    --kr:"Inter","Noto Sans KR",system-ui,sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --primary:#6E8BFF; --accent:#FFC24D;
+      --ink:#EAECF2; --sub:#9AA3B2; --faint:#6B7480;
+      --bg:#0F1218; --surface:#1A1E27; --line:#2A2F3A; --field:#171B24;
+      --vocab:#6EA3E0; --vocab-bg:#1A2535;
+      --grammar:#A98EEA; --grammar-bg:#1E1A30;
+      --syntax:#4EC49A; --syntax-bg:#152820;
+      --translation:#6E9DB5; --translation-bg:#131E24;
+      --explain:#E8965A; --explain-bg:#2A1A0E;
+      --sel-bg:#1A1F3A; --sel-line:#6E8BFF; --sel-text:#B0C4FF;
+      --answer-bg:#152820; --answer-border:#28402F; --answer-text:#4EC49A;
+      --shadow:0 6px 20px -8px rgba(0,0,0,.5);
+    }
   }
   *{box-sizing:border-box;}
   html{-webkit-text-size-adjust:100%;}
-  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--kr);line-height:1.6;-webkit-font-smoothing:antialiased;
-    background-image:radial-gradient(circle at 1px 1px, rgba(31,84,104,.05) 1px, transparent 0);background-size:22px 22px;}
-  .wrap{max-width:760px;margin:0 auto;padding:0 20px 96px;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--kr);line-height:1.6;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:480px;margin:0 auto;padding:0 18px calc(40px + env(safe-area-inset-bottom));}
 
-  header{padding:46px 0 22px;}
-  .eyebrow{font-size:12px;font-weight:700;letter-spacing:.16em;color:var(--pen);text-transform:uppercase;display:flex;align-items:center;gap:9px;margin-bottom:16px;}
-  .eyebrow::before{content:"";width:26px;height:2px;background:var(--pen);display:inline-block;}
-  h1{font-family:var(--en);font-weight:500;font-size:clamp(30px,6vw,46px);line-height:1.08;margin:0;letter-spacing:-.01em;}
-  h1 .ko{font-family:var(--kr);font-weight:700;}
-  .lede{color:var(--sub);font-size:14.5px;margin:14px 0 0;}
+  /* header / wordmark */
+  header{padding:34px 0 8px;}
+  .wm{height:52px;width:auto;display:block;}
+  .wm-ink{fill:var(--ink);} .wm-blue{fill:var(--primary);}
+  .lede{color:var(--sub);font-size:13.5px;margin:22px 0 0;line-height:1.55;}
 
-  .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;margin:26px 0 0;box-shadow:0 18px 40px -32px rgba(27,36,48,.4);}
-  textarea{width:100%;min-height:140px;resize:vertical;border:1px solid var(--line);border-radius:11px;padding:15px 16px;font-family:var(--en);font-size:17px;line-height:1.6;color:#283341;background:#fbfbf9;}
-  textarea:focus{outline:2px solid var(--pen);outline-offset:0;border-color:var(--pen);}
-  textarea::placeholder{font-family:var(--kr);color:var(--faint);font-size:15px;}
-  .or{display:flex;align-items:center;gap:12px;margin:16px 0;color:var(--faint);font-size:12px;font-weight:600;letter-spacing:.06em;}
+  /* input card */
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;margin-top:22px;box-shadow:var(--shadow);}
+  textarea{width:100%;min-height:120px;resize:vertical;border:0;border-radius:12px;padding:14px;font-family:var(--kr);font-size:15px;line-height:1.6;color:var(--ink);background:var(--field);}
+  textarea:focus{outline:2px solid var(--primary);}
+  textarea::placeholder{color:var(--faint);}
+  .or{display:flex;align-items:center;gap:12px;margin:14px 0;color:var(--faint);font-size:12px;}
   .or::before,.or::after{content:"";flex:1;height:1px;background:var(--line);}
-  .drop{border:1.5px dashed #c8ccc1;border-radius:11px;padding:18px;text-align:center;color:var(--sub);font-size:13.5px;transition:border-color .15s,background .15s;}
-  .drop.over{border-color:var(--pen);background:rgba(31,84,104,.04);}
-  .drop b{color:var(--ink);font-weight:700;}
-  .linkish{background:none;border:0;color:var(--pen);font:inherit;font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:0 2px;}
-  .thumb{margin-top:13px;display:flex;align-items:center;gap:11px;}
-  .thumb img{max-height:96px;border-radius:9px;border:1px solid var(--line);}
-  .thumb .rm{background:none;border:1px solid var(--line);border-radius:8px;padding:5px 11px;font:inherit;font-size:12.5px;color:var(--sub);cursor:pointer;}
-  .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;align-items:center;}
-  .primary{background:var(--pen);color:#fff;border:0;border-radius:10px;padding:12px 22px;font-family:var(--kr);font-size:15px;font-weight:700;cursor:pointer;transition:background .15s;}
-  .primary:hover{background:var(--pen-d);}
-  .primary:disabled{opacity:.55;cursor:default;}
-  .ghost{background:none;border:1px solid var(--line);border-radius:10px;padding:12px 16px;font-family:var(--kr);font-size:14px;font-weight:600;color:var(--sub);cursor:pointer;}
-  .ghost:hover{border-color:#cfd2c9;color:var(--ink);}
-  .primary:focus-visible,.ghost:focus-visible,.linkish:focus-visible{outline:2px solid var(--pen);outline-offset:2px;}
-  .err{margin-top:14px;background:var(--err-bg);color:#8c2c22;border-radius:10px;padding:11px 14px;font-size:13.5px;}
-  .hint{margin-top:14px;color:var(--faint);font-size:12.5px;}
+  .drop{border:1.5px dashed var(--line);border-radius:12px;padding:18px;text-align:center;color:var(--sub);font-size:13.5px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;transition:border-color .15s,background .15s;}
+  .drop.over{border-color:var(--primary);background:color-mix(in srgb,var(--primary) 6%,transparent);}
+  .drop svg{width:26px;height:26px;stroke:var(--sub);}
+  .thumb{margin-top:12px;display:flex;align-items:center;gap:10px;}
+  .thumb img{max-height:80px;border-radius:10px;border:1px solid var(--line);}
+  .thumb .rm{background:none;border:1px solid var(--line);border-radius:8px;padding:6px 11px;font:inherit;font-size:12.5px;color:var(--sub);cursor:pointer;}
+  .btn{width:100%;border:0;border-radius:12px;padding:15px;font-family:var(--kr);font-size:15px;font-weight:600;cursor:pointer;margin-top:12px;min-height:50px;}
+  .btn-primary{background:var(--primary);color:#fff;box-shadow:0 6px 16px -8px var(--primary);}
+  .btn-primary:disabled{opacity:.6;}
+  .btn-ghost{background:var(--surface);color:var(--sub);border:1px solid var(--line);}
+  .btn:focus-visible{outline:2px solid var(--primary);outline-offset:2px;}
+  .hint{margin-top:14px;color:var(--faint);font-size:12px;line-height:1.5;}
+  .err{margin-top:12px;background:#FCEDEB;color:#8c2c22;border-radius:10px;padding:11px 13px;font-size:13px;}
+  @media(prefers-color-scheme:dark){.err{background:#2A1512;color:#E8A99F;}}
 
-  .back{background:none;border:0;color:var(--pen);font:inherit;font-weight:700;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;padding:0;margin:0 0 18px;}
-  .back:focus-visible{outline:2px solid var(--pen);outline-offset:3px;border-radius:4px;}
+  /* result */
+  .topbar{display:flex;align-items:center;gap:10px;padding:8px 0 2px;}
+  .topbar button{background:none;border:0;color:var(--ink);font-size:20px;cursor:pointer;padding:4px;line-height:1;}
+  .topbar span{font-weight:600;font-size:16px;}
+  .passage{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;margin-top:12px;box-shadow:var(--shadow);}
+  .cap{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;margin-bottom:10px;}
+  .passage p{font-size:15px;line-height:1.75;color:var(--ink);margin:0;}
+  .psent{font:inherit;color:inherit;background:none;border:0;padding:0 1px;cursor:pointer;border-radius:3px;text-align:left;}
+  .psent.active{background:var(--accent);color:#171A21;}
 
-  .passage,.solve{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:24px;box-shadow:0 18px 40px -34px rgba(27,36,48,.4);}
-  .passage{margin:6px 0 8px;}
-  .solve{margin:14px 0 4px;}
-  .cap{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--faint);text-transform:uppercase;margin-bottom:13px;display:flex;align-items:center;gap:10px;}
-  .passage p{font-family:var(--en);font-size:19.5px;line-height:1.74;color:#222b36;margin:0;}
-  .psent{font:inherit;color:inherit;background:none;border:0;padding:1px 2px;margin:0;cursor:pointer;border-radius:4px;transition:background .18s,box-shadow .18s;text-align:left;}
-  .psent:hover{box-shadow:inset 0 -.6em 0 rgba(252,231,160,.55);}
-  .psent.active{background:linear-gradient(180deg,transparent 58%,var(--marker) 58%);}
-  .psent:focus-visible{outline:2px solid var(--pen);outline-offset:2px;}
+  .controls{display:flex;align-items:center;gap:10px;margin:14px 0 4px;}
+  .toggle{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:8px 14px;font:inherit;font-size:12.5px;font-weight:500;color:var(--ink);cursor:pointer;}
+  .toggle[aria-pressed="true"]{border-color:var(--primary);color:var(--primary);}
+  .counter{margin-left:auto;font-size:12.5px;color:var(--sub);}
+  .seclabel{font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--sub);margin:18px 2px 10px;}
+  .legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin:2px 2px 12px;}
+  .legend span{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;color:var(--sub);}
+  .legend i{width:9px;height:9px;border-radius:3px;}
 
-  /* 해설 카드 */
-  .qtype{font-size:11px;font-weight:700;color:var(--pen);background:rgba(31,84,104,.08);border-radius:999px;padding:3px 10px;letter-spacing:.02em;text-transform:none;}
-  .block{margin:0 0 16px;}
-  .block:last-child{margin-bottom:0;}
-  .blab{display:inline-block;font-size:12px;font-weight:700;color:var(--sub);margin-bottom:6px;letter-spacing:.02em;}
-  .val{font-size:15px;color:var(--ink);line-height:1.66;}
-  .val code{font-family:var(--en);font-style:italic;background:#f1f2ed;padding:1px 5px;border-radius:4px;color:#2a3340;}
-  .answer{background:#f1f8f4;border:1px solid #d8ebe0;border-radius:11px;padding:14px 16px;margin:4px 0 16px;}
-  .ans-head{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--explain);margin-bottom:8px;}
-  .ans-head b{font-size:19px;}
-  .ans-reason{font-size:14.5px;color:#2f4a3d;line-height:1.68;}
-  .ans-reason code{font-family:var(--en);font-style:italic;background:#e6f1ea;padding:1px 5px;border-radius:4px;}
-  .choices2{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:8px;}
-  .choice2{border:1px solid var(--line);border-radius:10px;padding:11px 13px;}
-  .choice2.correct{border-color:#bfe3cd;background:#f4faf6;}
-  .choice2 .top{display:flex;align-items:center;gap:9px;}
-  .choice2 .lab2{font-weight:700;color:var(--sub);font-variant-numeric:tabular-nums;}
-  .choice2.correct .lab2{color:var(--explain);}
-  .choice2 .txt2{font-family:var(--en);font-size:15px;color:#283341;flex:1;}
-  .choice2 .tag2{font-size:11px;font-weight:700;border-radius:999px;padding:2px 9px;flex:none;}
-  .choice2.correct .tag2{background:var(--explain);color:#fff;}
-  .choice2.wrong .tag2{background:#eceee8;color:var(--sub);}
-  .choice2 .note2{font-size:13.5px;color:#4a5360;line-height:1.62;margin-top:7px;}
+  /* solve card */
+  .solve{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;margin-top:12px;box-shadow:var(--shadow);}
+  .pill{font-size:11px;font-weight:700;color:var(--primary);background:color-mix(in srgb,var(--primary) 12%,transparent);border-radius:999px;padding:3px 10px;}
+  .blk{margin-top:12px;}
+  .blab{font-size:12px;font-weight:700;color:var(--sub);margin-bottom:5px;}
+  .val{font-size:14px;color:var(--ink);line-height:1.6;}
+  .answer{background:var(--answer-bg);border:1px solid var(--answer-border);border-radius:12px;padding:13px;margin-top:12px;}
+  .answer .h{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:var(--answer-text);margin-bottom:6px;}
+  .answer .h b{font-size:18px;}
+  .answer .r{font-size:13.5px;color:var(--ink);line-height:1.6;}
+  .choices{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:7px;}
+  .choice{border:1px solid var(--line);border-radius:10px;padding:11px;}
+  .choice.correct{border-color:var(--answer-border);background:var(--answer-bg);}
+  .choice .t{display:flex;align-items:center;gap:8px;}
+  .choice .lab{font-weight:700;color:var(--sub);}
+  .choice.correct .lab{color:var(--answer-text);}
+  .choice .tx{flex:1;font-size:14px;}
+  .choice .tag{font-size:10.5px;font-weight:700;border-radius:999px;padding:2px 8px;background:var(--line);color:var(--sub);}
+  .choice.correct .tag{background:var(--answer-text);color:var(--surface);}
+  .choice .note{font-size:12.5px;color:var(--sub);margin-top:6px;line-height:1.55;}
 
-  .statusbar{display:flex;align-items:center;gap:10px;margin:18px 0 6px;color:var(--sub);font-size:13.5px;}
-  .statusbar .spin{width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--pen);border-radius:50%;animation:spin .7s linear infinite;}
-  @keyframes spin{to{transform:rotate(360deg);}}
-
-  .controls{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:14px 0 8px;}
-  .toggle{display:inline-flex;align-items:center;gap:9px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:8px 15px;font-family:var(--kr);font-size:13px;font-weight:600;color:var(--ink);cursor:pointer;}
-  .toggle .dot{width:9px;height:9px;border-radius:50%;background:var(--faint);transition:background .15s;}
-  .toggle[aria-pressed="true"]{border-color:var(--pen);color:var(--pen);}
-  .toggle[aria-pressed="true"] .dot{background:var(--pen);}
-  .toggle:focus-visible{outline:2px solid var(--pen);outline-offset:2px;}
-  .counter{margin-left:auto;font-size:13px;color:var(--sub);font-variant-numeric:tabular-nums;}
-  .counter b{color:var(--pen);font-weight:700;}
-  .sech{font-family:var(--en);font-size:13px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:.12em;margin:26px 2px 12px;}
-
-  .legend{display:flex;flex-wrap:wrap;gap:7px 16px;margin:4px 2px 16px;}
-  .legend span{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--sub);font-weight:500;}
-  .legend i{width:10px;height:10px;border-radius:3px;display:inline-block;}
-
-  .rows{display:flex;flex-direction:column;gap:12px;}
-  .row{background:var(--surface);border:1px solid var(--line);border-radius:13px;overflow:hidden;transition:border-color .2s,box-shadow .2s;}
-  .row.open{border-color:#cdd0c7;box-shadow:0 18px 40px -34px rgba(27,36,48,.55);}
-  .rowhead{width:100%;display:flex;gap:14px;align-items:flex-start;background:none;border:0;padding:18px;cursor:pointer;text-align:left;font-family:inherit;}
-  .rowhead:focus-visible{outline:2px solid var(--pen);outline-offset:-2px;border-radius:13px;}
-  .num{flex:none;width:27px;height:27px;border-radius:8px;margin-top:2px;display:grid;place-items:center;font-size:13px;font-weight:700;background:#eef1ec;color:var(--sub);transition:background .2s,color .2s;font-variant-numeric:tabular-nums;}
-  .row.open .num{background:var(--pen);color:#fff;}
-  .stext{flex:1;font-family:var(--en);font-size:18px;line-height:1.55;color:#283341;transition:background .25s;padding:1px 3px;border-radius:4px;}
-  .row.open .stext{background:linear-gradient(180deg,transparent 60%,var(--marker) 60%);}
-  .chev{flex:none;color:var(--faint);margin-top:5px;transition:transform .3s;}
-  .row.open .chev{transform:rotate(180deg);color:var(--pen);}
-  .drawer{display:grid;grid-template-rows:0fr;transition:grid-template-rows .34s ease;}
+  /* sentence rows */
+  .rows{display:flex;flex-direction:column;gap:10px;}
+  .row{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;transition:border-color .2s;}
+  .row.open{border-color:var(--sel-line);}
+  .rowhead{width:100%;display:flex;gap:11px;align-items:flex-start;background:none;border:0;padding:14px;cursor:pointer;text-align:left;font-family:inherit;}
+  .row.open .rowhead{background:var(--sel-bg);}
+  .num{flex:none;width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font-size:12px;font-weight:700;background:var(--line);color:var(--sub);}
+  .row.open .num{background:var(--primary);color:#fff;}
+  .stext{flex:1;font-size:14px;line-height:1.5;color:var(--ink);}
+  .row.open .stext{color:var(--sel-text);font-weight:500;}
+  .chev{flex:none;color:var(--faint);transition:transform .3s;margin-top:3px;}
+  .row.open .chev{transform:rotate(180deg);color:var(--primary);}
+  .drawer{display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s ease;}
   .row.open .drawer{grid-template-rows:1fr;}
   .drawer-inner{overflow:hidden;}
-  .body{padding:2px 18px 20px 59px;}
-  @media(max-width:520px){.body{padding-left:18px;}}
-  .trans{font-size:16px;color:var(--ink);font-weight:500;line-height:1.7;padding:13px 15px;background:#f7f8f4;border-radius:10px;margin-bottom:16px;border-left:3px solid var(--pen);}
-  .trans.hidden{color:transparent;user-select:none;background:#eceee8;border-left-color:#d6d9d0;text-shadow:0 0 9px rgba(40,51,65,.55);cursor:pointer;}
-  .trans.hidden::after{content:"해석 보기";position:absolute;color:var(--sub);text-shadow:none;font-size:12px;font-weight:700;}
-  .trans-wrap{position:relative;}
-  .cat{display:flex;gap:13px;padding:11px 0;border-top:1px solid #eef0ea;}
-  .cat:first-of-type{border-top:0;}
-  .lab{flex:none;width:80px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:7px;padding-top:1px;}
-  .lab i{width:9px;height:9px;border-radius:3px;flex:none;}
-  .lab.vocab{color:var(--vocab);} .lab.vocab i{background:var(--vocab);}
-  .lab.grammar{color:var(--grammar);} .lab.grammar i{background:var(--grammar);}
-  .lab.explain{color:var(--explain);} .lab.explain i{background:var(--explain);}
-  .content{flex:1;font-size:14.5px;color:#37414e;line-height:1.62;}
-  @media(max-width:520px){.cat{flex-direction:column;gap:5px;} .lab{width:auto;}}
+  .body{padding:4px 14px 16px;}
+  .cat{margin-top:14px;}
+  .cat:first-child{margin-top:6px;}
+  .clab{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;margin-bottom:7px;}
+  .clab i{width:8px;height:8px;border-radius:3px;}
+  .cbox{border-radius:10px;padding:11px 13px;font-size:13.5px;line-height:1.62;color:var(--ink);}
+  .cbox code{font-family:"Inter",monospace;font-size:.94em;background:color-mix(in srgb,var(--ink) 7%,transparent);padding:1px 5px;border-radius:4px;}
+  .lab-vocab{color:var(--vocab);} .lab-vocab i{background:var(--vocab);} .box-vocab{background:var(--vocab-bg);}
+  .lab-grammar{color:var(--grammar);} .lab-grammar i{background:var(--grammar);} .box-grammar{background:var(--grammar-bg);}
+  .lab-syntax{color:var(--syntax);} .lab-syntax i{background:var(--syntax);} .box-syntax{background:var(--syntax-bg);}
+  .lab-trans{color:var(--translation);} .lab-trans i{background:var(--translation);}
+  .box-trans{background:var(--translation-bg);border-left:3px solid var(--translation);}
+  .box-trans.hidden{color:transparent;text-shadow:0 0 9px color-mix(in srgb,var(--ink) 55%,transparent);cursor:pointer;}
+  .lab-explain{color:var(--explain);} .lab-explain i{background:var(--explain);} .box-explain{background:var(--explain-bg);}
   .words{display:flex;flex-direction:column;gap:5px;}
-  .word{display:flex;gap:9px;align-items:baseline;}
-  .word .w{font-family:var(--en);font-weight:600;color:var(--vocab);font-size:15px;min-width:96px;}
-  .word .m{color:#37414e;}
-  .content code{font-family:var(--en);font-style:italic;background:#f1f2ed;padding:1px 5px;border-radius:4px;font-size:.96em;color:#2a3340;}
-  .explainbox{background:#f1f8f4;border-radius:9px;padding:11px 14px;line-height:1.7;}
-
-  .sk{height:12px;border-radius:6px;background:linear-gradient(90deg,#eef0ea,#f6f7f3,#eef0ea);background-size:200% 100%;animation:sh 1.2s infinite;margin:7px 0;}
+  .word{display:flex;gap:8px;}
+  .word .w{font-weight:600;color:var(--vocab);min-width:92px;}
+  .word .m{color:var(--ink);}
+  .sk{height:11px;border-radius:5px;background:linear-gradient(90deg,var(--line),color-mix(in srgb,var(--line) 40%,transparent),var(--line));background-size:200% 100%;animation:sh 1.2s infinite;margin:8px 0;}
   @keyframes sh{to{background-position:-200% 0;}}
-  footer{margin-top:40px;font-size:12.5px;color:var(--faint);line-height:1.7;text-align:center;}
+  .status{display:flex;align-items:center;gap:9px;margin:14px 0 4px;color:var(--sub);font-size:13px;}
+  .spin{width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  footer{margin-top:32px;text-align:center;font-size:11.5px;color:var(--faint);line-height:1.6;}
   .hide{display:none!important;}
   @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <div class="eyebrow">수능 영어 · 문제 캡처 분석</div>
-    <h1><span class="ko">문제를 캡처하면,</span> 끝까지</h1>
-    <p class="lede">지문·선지가 담긴 문제를 캡처해 올리면 — 주제·요약·정답과 이유·선지 분석·문장별 해설까지 한 번에 만들어 드려요.</p>
-  </header>
 
+  <!-- ===== 입력 ===== -->
   <section id="inputView">
+    <header>
+      <svg class="wm" viewBox="0 0 115 56" role="img" aria-label="lucid" xmlns="http://www.w3.org/2000/svg"><path class="wm-ink" d="M10.1591 11.0909V46H2.89773V11.0909H10.1591ZM32.7656 34.8523V19.8182H40.027V46H33.0554V41.2443H32.7827C32.1918 42.7784 31.2088 44.0114 29.8338 44.9432C28.4702 45.875 26.8054 46.3409 24.8395 46.3409C23.0895 46.3409 21.5497 45.9432 20.2202 45.1477C18.8906 44.3523 17.8509 43.2216 17.1009 41.7557C16.3622 40.2898 15.9872 38.5341 15.9759 36.4886V19.8182H23.2372V35.1932C23.2486 36.7386 23.6634 37.9602 24.4815 38.858C25.2997 39.7557 26.3963 40.2045 27.7713 40.2045C28.6463 40.2045 29.4645 40.0057 30.2259 39.608C30.9872 39.1989 31.6009 38.5966 32.0668 37.8011C32.544 37.0057 32.777 36.0227 32.7656 34.8523ZM57.6648 46.5114C54.983 46.5114 52.6761 45.9432 50.7443 44.8068C48.8239 43.6591 47.3466 42.0682 46.3125 40.0341C45.2898 38 44.7784 35.6591 44.7784 33.0114C44.7784 30.3295 45.2955 27.9773 46.3295 25.9545C47.375 23.9205 48.858 22.3352 50.7784 21.1989C52.6989 20.0511 54.983 19.4773 57.6307 19.4773C59.9148 19.4773 61.9148 19.892 63.6307 20.7216C65.3466 21.5511 66.7045 22.7159 67.7045 24.2159C68.7045 25.7159 69.2557 27.4773 69.358 29.5H62.5057C62.3125 28.1932 61.8011 27.142 60.9716 26.3466C60.1534 25.5398 59.0795 25.1364 57.75 25.1364C56.625 25.1364 55.642 25.4432 54.8011 26.0568C53.9716 26.6591 53.3239 27.5398 52.858 28.6989C52.392 29.858 52.1591 31.2614 52.1591 32.9091C52.1591 34.5795 52.3864 36 52.8409 37.1705C53.3068 38.3409 53.9602 39.233 54.8011 39.8466C55.642 40.4602 56.625 40.767 57.75 40.767C58.5795 40.767 59.3239 40.5966 59.983 40.2557C60.6534 39.9148 61.2045 39.4205 61.6364 38.7727C62.0795 38.1136 62.3693 37.3239 62.5057 36.4034H69.358C69.2443 38.4034 68.6989 40.1648 67.7216 41.6875C66.7557 43.1989 65.4205 44.3807 63.7159 45.233C62.0114 46.0852 59.9943 46.5114 57.6648 46.5114ZM96.733 46.4261C94.7443 46.4261 92.9432 45.9148 91.3295 44.892C89.7273 43.858 88.4545 42.3409 87.5114 40.3409C86.5795 38.3295 86.1136 35.8636 86.1136 32.9432C86.1136 29.9432 86.5966 27.4489 87.5625 25.4602C88.5284 23.4602 89.8125 21.9659 91.4148 20.9773C93.0284 19.9773 94.7955 19.4773 96.7159 19.4773C98.1818 19.4773 99.4034 19.7273 100.381 20.2273C101.369 20.7159 102.165 21.3295 102.767 22.0682C103.381 22.7955 103.847 23.5114 104.165 24.2159H104.386V11.0909H111.631V46H104.472V41.8068H104.165C103.824 42.5341 103.341 43.2557 102.716 43.9716C102.102 44.6761 101.301 45.2614 100.312 45.7273C99.3352 46.1932 98.142 46.4261 96.733 46.4261ZM99.0341 40.6477C100.205 40.6477 101.193 40.3295 102 39.6932C102.818 39.0455 103.443 38.142 103.875 36.983C104.318 35.8239 104.54 34.4659 104.54 32.9091C104.54 31.3523 104.324 30 103.892 28.8523C103.46 27.7045 102.835 26.8182 102.017 26.1932C101.199 25.5682 100.205 25.2557 99.0341 25.2557C97.8409 25.2557 96.8352 25.5795 96.017 26.2273C95.1989 26.875 94.5795 27.7727 94.1591 28.9205C93.7386 30.0682 93.5284 31.3977 93.5284 32.9091C93.5284 34.4318 93.7386 35.7784 94.1591 36.9489C94.5909 38.108 95.2102 39.017 96.017 39.6761C96.8352 40.3239 97.8409 40.6477 99.0341 40.6477Z"/><path class="wm-blue" d="M74.0071 46V19.8182H81.2685V46H74.0071Z"/><g filter="url(#lucspark)"><path class="wm-blue" d="M85 12.5C79.0845 12.5421 77.4631 14.2016 77.5 20C77.5416 14.1683 75.9288 12.5007 70 12.5C75.8356 12.5127 77.5319 10.9239 77.5 5C77.3997 10.908 79.074 12.5256 85 12.5Z"/></g><defs><filter id="lucspark" x="69.625" y="4.625" width="15.75" height="15.75" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="bg"/><feBlend mode="normal" in="SourceGraphic" in2="bg" result="shape"/><feGaussianBlur stdDeviation="0.1875" result="blur"/></filter></defs></svg>
+      <p class="lede">막힌 지문을 붙여넣거나 캡처해 올리면 — 단어·어법·구조·해석·쉬운 설명까지 문장마다 또렷하게.</p>
+    </header>
     <div class="card">
-      <textarea id="ta" placeholder="문제 전체를 붙여넣어도 되고, 지문만 넣어도 됩니다."></textarea>
+      <textarea id="ta" placeholder="영어 지문을 붙여넣으세요. 시험 범위 지문도 좋아요."></textarea>
       <div class="or">또는</div>
       <div class="drop" id="drop">
-        문제 캡처 이미지를 끌어다 놓거나 <b>Ctrl/Cmd&nbsp;+&nbsp;V</b>로 붙여넣기,
-        <button class="linkish" id="pick">파일 선택</button>
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L8 6H4a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1h-4z"/><circle cx="12" cy="12.5" r="3.2"/></svg>
+        <div>사진 촬영 · 갤러리에서 선택</div>
         <input type="file" id="file" accept="image/*" hidden>
       </div>
       <div class="thumb hide" id="thumb"></div>
-      <div class="actions">
-        <button class="primary" id="go">분석하기</button>
-        <button class="ghost" id="demo">예시로 둘러보기</button>
-      </div>
+      <button class="btn btn-primary" id="go">분석하기</button>
+      <button class="btn btn-ghost" id="demo">예시 보기</button>
       <div class="err hide" id="err"></div>
-      <p class="hint">팁 · 본문·요약문·선지가 다 보이게 캡처하면 정답과 선지 분석까지 나와요. 지문만 넣으면 주제·요약·문장 해설만 제공합니다.</p>
+      <p class="hint">팁 · 캡처는 글자가 또렷할수록 정확해요. 한 단락(4~8문장) 정도가 보기 좋아요.</p>
     </div>
   </section>
 
+  <!-- ===== 결과 ===== -->
   <section id="resultView" class="hide">
-    <button class="back" id="back">← 새 문제 분석</button>
+    <div class="topbar"><button id="back" aria-label="뒤로">←</button><span>내 지문 분석</span></div>
 
-    <div class="passage" aria-label="지문 전체">
-      <div class="cap">Passage</div>
-      <p id="full"></p>
-    </div>
+    <div class="passage"><div class="cap">전체 지문 · Passage</div><p id="full"></p></div>
 
-    <section class="solve" id="solve" aria-label="해설">
-      <div class="cap">해설 <span class="qtype hide" id="qtype"></span></div>
-      <div class="block"><span class="blab">주제</span><div class="val" id="theme"><div class="sk" style="width:80%"></div></div></div>
-      <div class="block"><span class="blab">요약</span><div class="val" id="summary"><div class="sk" style="width:92%"></div><div class="sk" style="width:58%"></div></div></div>
-      <div class="answer hide" id="answerBox">
-        <div class="ans-head">정답 <b id="ansVal"></b></div>
-        <div class="ans-reason" id="ansReason"></div>
-      </div>
-      <div class="block hide" id="choiceBox">
-        <span class="blab">선지 분석</span>
-        <ul class="choices2" id="choiceList"></ul>
-      </div>
+    <section class="solve hide" id="solve">
+      <div class="cap" style="display:flex;align-items:center;gap:8px;">해설 <span class="pill hide" id="qtype"></span></div>
+      <div class="blk"><div class="blab">주제</div><div class="val" id="theme"></div></div>
+      <div class="blk"><div class="blab">요약</div><div class="val" id="summary"></div></div>
+      <div class="answer hide" id="answerBox"><div class="h">정답 <b id="ansVal"></b></div><div class="r" id="ansReason"></div></div>
+      <div class="blk hide" id="choiceBox"><div class="blab">선지 분석</div><ul class="choices" id="choiceList"></ul></div>
     </section>
 
-    <div class="statusbar hide" id="status"><span class="spin"></span><span id="statusTxt"></span></div>
+    <div class="status hide" id="status"><span class="spin"></span><span id="statusTxt"></span></div>
 
-    <div class="sech">문장별 분석</div>
+    <div class="seclabel">문장별 분석</div>
     <div class="controls">
-      <button class="toggle" id="hideTrans" aria-pressed="false"><span class="dot"></span> 해석 가리기</button>
-      <div class="counter">펼친 문장 <b id="count">0</b> / <span id="total">0</span></div>
+      <button class="toggle" id="hideTrans" aria-pressed="false">해석 가리기</button>
+      <span class="counter">문장 <b id="total">0</b>개</span>
     </div>
-    <div class="legend" aria-hidden="true">
-      <span><i style="background:var(--pen)"></i>해석</span>
+    <div class="legend">
       <span><i style="background:var(--vocab)"></i>단어</span>
       <span><i style="background:var(--grammar)"></i>어법</span>
+      <span><i style="background:var(--syntax)"></i>구조/구문</span>
+      <span><i style="background:var(--translation)"></i>해석</span>
       <span><i style="background:var(--explain)"></i>쉬운 설명</span>
     </div>
-    <div class="rows" id="rows" aria-label="문장별 분석"></div>
+    <div class="rows" id="rows"></div>
   </section>
 
-  <footer>분석은 화면 안에서 생성됩니다 · 정답·해설은 학습 참고용이며, 애매한 부분은 선생님께 확인하세요.</footer>
 </div>
 
 <script>
-/* ---------- 예시 데이터 ---------- */
+/* ===== 예시 데이터 ===== */
 const SAMPLE=[
-  {en:"Many people assume that unlimited freedom is the ideal condition for creative work.",kr:"많은 사람들은 무제한의 자유가 창의적인 작업에 이상적인 조건이라고 가정한다.",words:[["assume","가정하다, 여기다"],["unlimited","무제한의"],["ideal","이상적인"],["condition","조건, 상태"]],grammar:"<code>assume that + 주어 + 동사</code> 구조예요. that은 명사절 접속사로, assume의 목적어가 통째로 한 문장입니다.",explain:"사람들은 보통 '자유가 많을수록 창의력이 잘 발휘된다'고 믿어요. 이 문장은 그런 통념을 먼저 소개하는 부분이고, 뒤에서 이 생각을 뒤집을 거라는 신호이기도 합니다."},
-  {en:"However, what actually drives innovation is often the presence of constraints rather than their absence.",kr:"그러나 실제로 혁신을 이끄는 것은 흔히 제약의 부재가 아니라 그 존재이다.",words:[["drive","이끌다, 추진하다"],["innovation","혁신"],["presence","존재"],["constraint","제약"],["absence","부재"]],grammar:"<code>what</code>은 선행사를 포함한 관계대명사 '~하는 것'. <code>what ... innovation</code>이 주어, 동사는 <code>is</code>.",explain:"However로 시작했으니 통념을 뒤집는 핵심 문장이에요. 혁신을 진짜로 이끄는 건 제약이 없는 상태가 아니라 오히려 있는 상태라는 뜻 — '자유가 아니라 제한이 창의성을 만든다'가 주제입니다."},
-  {en:"In this sense, the boundaries we resent may be the very things that make original thinking possible.",kr:"이런 의미에서, 우리가 싫어하는 그 경계가 바로 독창적인 사고를 가능하게 하는 것일지도 모른다.",words:[["boundary","경계, 한계"],["resent","싫어하다"],["the very","바로 그"],["original","독창적인"]],grammar:"<code>the boundaries (that) we resent</code>는 목적격 관계대명사 생략. <code>make + 목적어 + 형용사(possible)</code>는 5형식.",explain:"글의 결론이에요. 우리가 거추장스럽게 여기는 '한계'가 사실은 독창적 사고를 가능하게 하는 바로 그 요소일 수 있다는 메시지입니다."}
+  {en:"When sport consumers passionately support a particular kind of sport, a specific competition or a specific team, there is low cross elasticity of demand.",kr:"스포츠 소비자가 특정 종목, 특정 대회, 또는 특정 팀을 열정적으로 응원할 때, 수요의 교차 탄력성이 낮다.",words:[["passionately","열정적으로"],["particular","특정한"],["elasticity","탄력성"],["demand","수요"]],grammar:"<code>When ~</code> 은 시간 부사절, <code>there is ~</code> 는 존재 구문. support의 목적어 3개가 or로 병렬돼요.",syntax:"[When 소비자가 ~ 응원할 때](부사절) + [there is](유도부사) + [low cross elasticity of demand](주어).",explain:"한 종목·팀을 열정적으로 응원하면 가격이 변해도 다른 스포츠로 잘 옮기지 않는다는 뜻. ‘교차 탄력성이 낮다’ = 대체가 잘 안 일어난다는 경제 표현이에요."},
+  {en:"This is an economic term that means it is difficult to substitute one sport product for another.",kr:"이것은 한 스포츠 상품을 다른 것으로 대체하기 어렵다는 것을 뜻하는 경제 용어이다.",words:[["term","용어"],["substitute","대체하다"],["economic","경제의"]],grammar:"<code>that means ~</code> 는 term을 꾸미는 주격 관계대명사절. means의 목적어는 <code>it is difficult to substitute ~</code> (가주어 it / 진주어 to부정사).",syntax:"[This](주어) [is](동사) [an economic term](보어) + [that means ...](관계절).",explain:"앞 문장의 ‘낮은 교차 탄력성’을 풀어 설명한 부분이에요. 한 스포츠를 다른 스포츠로 바꾸기 어렵다는 경제 용어라는 뜻."},
+  {en:"Most sport competitions have an inelastic demand and a high degree of product loyalty.",kr:"대부분의 스포츠 경기는 비탄력적 수요와 높은 제품 충성도를 가진다.",words:[["inelastic","비탄력적인"],["degree","정도"],["loyalty","충성도"]],grammar:"have의 목적어로 <code>an inelastic demand</code> 와 <code>a high degree of product loyalty</code> 가 and로 병렬돼요.",syntax:"[Most sport competitions](주어) [have](동사) [an inelastic demand and a high degree of product loyalty](목적어).",explain:"핵심 문장. 스포츠는 가격·상황이 바뀌어도 수요가 잘 변하지 않고(비탄력적), 팬 충성도가 높다는 뜻이에요."},
+  {en:"Even if fans are unhappy about the result of a game, the winning margin or the standard of refereeing, it is unlikely that they would alter their sporting preferences.",kr:"팬들이 경기 결과, 승점 차, 또는 심판 판정 수준에 불만족하더라도, 자신의 스포츠 선호를 바꿀 가능성은 낮다.",words:[["even if","비록 ~일지라도"],["margin","차이, 폭"],["alter","바꾸다"],["preference","선호"]],grammar:"<code>Even if ~</code> 양보 부사절. <code>it is unlikely that ~</code> 는 가주어 it / 진주어 that절.",syntax:"[Even if ...](양보절), [it](가주어) [is unlikely](동사+보어) + [that they would alter ...](진주어).",explain:"결과·점수차·판정에 화가 나도 팬들은 응원 대상을 좀처럼 안 바꾼다는 뜻. 충성도를 구체적으로 보여줘요."},
+  {en:"If, for instance, a supporter’s football team is playing interstate and the match is not on television, it is unlikely that he/she would go to a hockey game instead, regardless of whether the venue was attractive and the ticket was free.",kr:"예를 들어, 어떤 지지자의 축구팀이 다른 주에서 경기하고 그 경기가 TV에 안 나와도, 경기장이 좋고 표가 공짜인지와 상관없이, 대신 하키 경기를 보러 갈 가능성은 낮다.",words:[["for instance","예를 들어"],["interstate","다른 주에서"],["regardless of","~와 상관없이"],["venue","경기장"]],grammar:"<code>If ~</code> 조건절, <code>regardless of whether ~</code> 는 ‘~인지 아닌지와 상관없이’.",syntax:"[If ...](조건절), [it](가주어) [is unlikely](동사+보어) + [that ... go ...](진주어), [regardless of whether ...](부사구).",explain:"내 축구팀 경기를 못 보고 공짜 좋은 경기장이 있어도 다른 종목으로 안 옮긴다는 예. 충성도가 얼마나 강한지 강조해요."},
+  {en:"The situation is quite different for most other products.",kr:"대부분의 다른 상품들에 대해서는 상황이 꽤 다르다.",words:[["situation","상황"],["quite","꽤"],["product","상품"]],grammar:"<code>be different for ~</code> 는 ‘~에 대해서는 다르다’. 흐름을 전환하는 대조 문장.",syntax:"[The situation](주어) [is](동사) [quite different](보어) [for most other products](부사구).",explain:"지금까지의 스포츠와 달리 일반 상품은 사정이 다르다는 전환 문장. 바로 뒤에 예가 이어져요."},
+  {en:"If a consumer bought a computer and discovered that he/she was not satisfied with its quality, he/she would be likely to change brands or shops next time.",kr:"만약 소비자가 컴퓨터를 샀는데 그 품질에 만족하지 못한다는 걸 알게 되면, 다음번에 브랜드나 가게를 바꿀 가능성이 높다.",words:[["consumer","소비자"],["discover","알아차리다"],["satisfied","만족한"],["be likely to","~할 가능성이 높다"]],grammar:"<code>If + 과거동사(bought, discovered) ... would ~</code> 가정의 조건문. discovered의 목적어는 <code>that ...</code>.",syntax:"[If ... bought ... and discovered that ...](조건절), [he/she](주어) [would be likely to change ...](주절).",explain:"일반 상품은 품질이 별로면 다음엔 쉽게 바꾼다는 뜻. 스포츠(안 바꿈)와 정반대라 글의 대조가 완성돼요."}
 ];
-const SAMPLE_OV={type:"글의 요지",theme:"무제한의 자유보다 적절한 제약이 오히려 창의적 사고를 가능하게 한다.",summary:"사람들은 자유가 창의성에 이상적이라 믿지만, 실제로는 제약이 선택을 좁혀 집중을 돕고 독창적 사고를 이끌어낸다.",answer:null,answerReason:null};
+const SAMPLE_OV={type:"요약문 빈칸",theme:"스포츠 소비자는 강한 제품 충성도 때문에 불리한 조건에서도 다른 선택지로 잘 옮겨가지 않는다.",summary:"일반 상품 소비자와 달리, 스포츠 소비자는 충성도가 높아 불리한 조건에서도 대안으로 갈아타지 않는다.",answer:"①",answerReason:"(A)에는 높은 충성도를 뜻하는 strong이, (B)에는 ‘대안을 받아들이다’를 뜻하는 adopt가 들어가 ‘대안을 받아들이지 않는다’가 되어 글과 일치한다.",choiceAnalysis:[{label:"①",text:"strong … adopt",correct:true,note:"높은 충성도(strong)와 ‘대안을 받아들이지 않는다(adopt)’가 글과 일치."},{label:"②",text:"unconditional … ignore",correct:false,note:"‘unlikely to ignore’면 ‘무시하지 않는다’가 되어 의미가 반대."},{label:"③",text:"little … choose",correct:false,note:"충성도가 ‘거의 없다’는 본문과 반대."},{label:"④",text:"average … avoid",correct:false,note:"‘보통’ 충성도도, ‘avoid’도 본문과 안 맞음."},{label:"⑤",text:"weak … compare",correct:false,note:"‘weak’ 충성도는 본문과 정반대."}]};
 
-/* ---------- 요소 ---------- */
+/* ===== 요소 ===== */
 const $=s=>document.querySelector(s);
 const inputView=$('#inputView'),resultView=$('#resultView');
 const ta=$('#ta'),drop=$('#drop'),fileInput=$('#file'),thumb=$('#thumb');
 const goBtn=$('#go'),demoBtn=$('#demo'),backBtn=$('#back'),errBox=$('#err');
 const full=$('#full'),rows=$('#rows'),statusBar=$('#status'),statusTxt=$('#statusTxt');
-const counter=$('#count'),totalEl=$('#total'),hideBtn=$('#hideTrans');
+const totalEl=$('#total'),hideBtn=$('#hideTrans');
 const qtypeEl=$('#qtype'),themeEl=$('#theme'),summaryEl=$('#summary');
 const answerBox=$('#answerBox'),ansVal=$('#ansVal'),ansReason=$('#ansReason');
 const choiceBox=$('#choiceBox'),choiceList=$('#choiceList');
 let pendingImage=null;
 
-/* ---------- 이미지 입력 ---------- */
-$('#pick').addEventListener('click',()=>fileInput.click());
+/* ===== 이미지 입력 (모바일: 카메라/갤러리) ===== */
+drop.addEventListener('click',()=>fileInput.click());
 fileInput.addEventListener('change',e=>{if(e.target.files[0])setImage(e.target.files[0]);});
 ['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('over');}));
 ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('over');}));
 drop.addEventListener('drop',e=>{const f=e.dataTransfer.files[0];if(f&&f.type.startsWith('image/'))setImage(f);});
 document.addEventListener('paste',e=>{if(!inputView.classList.contains('hide')){const it=[...e.clipboardData.items].find(i=>i.type.startsWith('image/'));if(it)setImage(it.getAsFile());}});
-function setImage(file){const r=new FileReader();r.onload=()=>{pendingImage={media_type:file.type,data:r.result.split(',')[1]};thumb.classList.remove('hide');thumb.innerHTML=`<img src="${r.result}" alt="올린 문제 이미지"><button class="rm" id="rmImg">이미지 빼기</button>`;$('#rmImg').addEventListener('click',clearImage);};r.readAsDataURL(file);}
+function setImage(file){const r=new FileReader();r.onload=()=>{pendingImage={media_type:file.type,data:r.result.split(',')[1]};thumb.classList.remove('hide');thumb.innerHTML='<img src="'+r.result+'" alt="올린 이미지"><button class="rm" id="rmImg">이미지 빼기</button>';$('#rmImg').addEventListener('click',ev=>{ev.stopPropagation();clearImage();});};r.readAsDataURL(file);}
 function clearImage(){pendingImage=null;thumb.classList.add('hide');thumb.innerHTML='';fileInput.value='';}
 
-/* ---------- Claude 호출 ---------- */
+/* ===== Claude 호출 (Vercel 백엔드 경유) ===== */
 async function callClaude(content,system){
-  const res=await fetch("/api/analyze",{method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({content,system})});
+  const res=await fetch("/api/analyze",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({content,system})});
   const data=await res.json().catch(()=>({error:"서버 응답 오류"}));
   if(!res.ok||data.error)throw new Error(data.error||("요청 실패 ("+res.status+")"));
   return data.text;
 }
-function extractJSON(text){
-  let t=text.trim().replace(/^```(?:json)?/i,'').replace(/```$/,'').trim();
-  const first=t.search(/[\[{]/);if(first<0)throw new Error("형식 오류");
-  const close=t[first]==='[' ?']':'}';const last=t.lastIndexOf(close);
-  return JSON.parse(t.slice(first,last+1));
-}
-function ctx(ex){
-  let t="[지문]\n"+(ex.passage||[]).join(' ');
-  if(ex.question)t+="\n\n[문제]\n"+ex.question;
-  if(ex.choices&&ex.choices.length)t+="\n\n[선지]\n"+ex.choices.join('\n');
-  return [{type:"text",text:t}];
-}
+function extractJSON(text){let t=text.trim().replace(/^```(?:json)?/i,'').replace(/```$/,'').trim();const f=t.search(/[\[{]/);if(f<0)throw new Error("형식 오류");const c=t[f]==='['?']':'}';const l=t.lastIndexOf(c);return JSON.parse(t.slice(f,l+1));}
+function ctx(ex){let t="[지문]\n"+(ex.passage||[]).join(' ');if(ex.question)t+="\n\n[문제]\n"+ex.question;if(ex.choices&&ex.choices.length)t+="\n\n[선지]\n"+ex.choices.join('\n');return [{type:"text",text:t}];}
 
-/* ---------- 실행 ---------- */
+/* ===== 실행 ===== */
 goBtn.addEventListener('click',run);
-demoBtn.addEventListener('click',()=>{showResults(SAMPLE,{loading:false});fillExplain(SAMPLE_OV);});
-backBtn.addEventListener('click',()=>{resultView.classList.add('hide');inputView.classList.remove('hide');window.scrollTo({top:0,behavior:'smooth'});});
+demoBtn.addEventListener('click',()=>{showResults(SAMPLE,false);fillExplain(SAMPLE_OV);if(SAMPLE_OV.choiceAnalysis)fillChoices(SAMPLE_OV);});
+backBtn.addEventListener('click',()=>{resultView.classList.add('hide');inputView.classList.remove('hide');window.scrollTo(0,0);});
 
 async function run(){
   errBox.classList.add('hide');
   const text=ta.value.trim();
-  if(!text&&!pendingImage){showErr("문제를 붙여넣거나 캡처 이미지를 올려 주세요.");return;}
+  if(!text&&!pendingImage){showErr("지문을 붙여넣거나 캡처 이미지를 올려 주세요.");return;}
   goBtn.disabled=true;goBtn.textContent="분석 중…";
   try{
-    const exSys="너는 수능 영어 문제를 다루는 전문가야. 입력(텍스트 또는 이미지)에서 정보를 추출해 오직 JSON 객체만 출력해. 마크다운·설명 금지. 키:\n- passage: 읽기 본문을 원문 그대로 문장 단위 문자열 배열로. 각주(* 표시), 한국어 지시문, 요약문, 선지는 제외.\n- question: 한국어 지시문과 (있다면) 빈칸 (A)/(B)가 포함된 요약문장을 합친 문자열. 없으면 \"\".\n- choices: 선택지가 있으면 [\"① ...\",\"② ...\"] 배열로 원문 그대로, 없으면 [].";
-    const exContent=pendingImage?[{type:"image",source:{type:"base64",media_type:pendingImage.media_type,data:pendingImage.data}},{type:"text",text:"이 문제 이미지에서 본문·문제·선지를 추출해 줘."}]:[{type:"text",text}];
+    const exSys="너는 수능·내신 영어 문제를 다루는 전문가야. 입력(텍스트/이미지)에서 정보를 추출해 오직 JSON 객체만 출력. 마크다운 금지. 키:\n- passage: 읽기 본문을 원문 그대로 문장 단위 문자열 배열. 각주·한국어 지시문·요약문·선지는 제외.\n- question: 한국어 지시문과 (있다면) 빈칸 포함 요약문장을 합친 문자열. 없으면 \"\".\n- choices: 선택지가 있으면 [\"① ...\"] 배열, 없으면 [].";
+    const exContent=pendingImage?[{type:"image",source:{type:"base64",media_type:pendingImage.media_type,data:pendingImage.data}},{type:"text",text:"이 이미지에서 본문·문제·선지를 추출해 줘."}]:[{type:"text",text}];
     const ex=extractJSON(await callClaude(exContent,exSys));
     const passage=(ex.passage||[]).filter(s=>typeof s==='string'&&s.trim());
     if(!passage.length)throw new Error("지문을 찾지 못했어요.");
 
-    showResults(passage,{loading:true});
-    statusBar.classList.remove('hide');
-    let done=0;const total=passage.length;
-    statusTxt.textContent=`분석 중… 문장 0/${total}`;
-
-    const sJobs=passage.map((s,i)=>analyzeOne(s).then(d=>fillRow(i,d))
-      .catch(()=>fillRow(i,{kr:"이 문장 분석에 실패했어요.",words:[],grammar:"—",explain:"—"}))
-      .finally(()=>{done++;statusTxt.textContent=`분석 중… 문장 ${done}/${total}`;}));
-
+    showResults(passage.map(en=>({en})),true);
+    statusBar.classList.remove('hide');let done=0;const total=passage.length;
+    statusTxt.textContent="분석 중… 0 / "+total+" 문장";
+    const sJobs=passage.map((s,i)=>analyzeOne(s).then(d=>fillRow(i,d)).catch(()=>fillRow(i,{kr:"이 문장 분석에 실패했어요.",words:[],grammar:"—",syntax:"—",explain:"—"})).finally(()=>{done++;statusTxt.textContent="분석 중… "+done+" / "+total+" 문장";}));
     const oJob=(async()=>{
-      const ovSys="너는 수능 영어 해설 강사야. 주어진 지문/문제를 보고 오직 JSON만 출력. 마크다운 금지. 키:\n- type: 문제 유형을 한국어로 짧게(예 '요약문 빈칸','빈칸 추론','글의 요지','주제'). 선택지가 없으면 '독해'.\n- theme: 글의 주제를 한국어 한 문장으로.\n- summary: 글 전체 요약을 한국어 1~2문장으로.\n- answer: 선택지가 있으면 정답 기호(예 '①'), 없으면 null.\n- answerReason: 선택지가 있으면 정답인 이유를 한국어 2~4문장으로(지문 근거 포함), 없으면 null.\n영어 핵심 표현은 <code>...</code>로 감싸도 됨. 모든 설명은 한국어.";
-      const ov=extractJSON(await callClaude(ctx(ex),ovSys));
-      fillExplain(ov);
+      const ovSys="너는 수능·내신 영어 해설 강사야. 오직 JSON만 출력. 키: type(유형 짧게, 선택지 없으면 '독해'), theme(주제 한 문장), summary(요약 1~2문장), answer(선택지 있으면 정답 기호 예 '①', 없으면 null), answerReason(선택지 있으면 정답 이유 2~4문장, 없으면 null). 한국어.";
+      const ov=extractJSON(await callClaude(ctx(ex),ovSys));fillExplain(ov);
       if(ex.choices&&ex.choices.length){
-        const chSys=`너는 수능 영어 해설 강사야. 이 문제의 정답은 ${ov.answer||'(미정)'}야. 각 선택지가 왜 정답/오답인지 한국어로 분석해 오직 JSON만 출력. 키 choiceAnalysis: 배열, 각 원소 {label:'①', text:'선택지 원문', correct:true/false, note:'한국어 설명 1~2문장'}. 선지 순서 유지. 영어 표현은 <code>...</code>로 감싸도 됨.`;
-        const ch=extractJSON(await callClaude(ctx(ex),chSys));
-        fillChoices(ch);
+        const chSys="너는 해설 강사야. 정답은 "+(ov.answer||"(미정)")+". 각 선택지가 왜 정답/오답인지 오직 JSON만 출력. 키 choiceAnalysis: [{label,text,correct(true/false),note(1~2문장)}]. 순서 유지. 한국어.";
+        fillChoices(extractJSON(await callClaude(ctx(ex),chSys)));
       }
     })().catch(()=>solveError());
-
-    await Promise.all([...sJobs,oJob]);
-    statusBar.classList.add('hide');
-  }catch(e){
-    inputView.classList.remove('hide');resultView.classList.add('hide');
-    showErr("분석에 실패했어요. "+(e.message||"")+" 잠시 후 다시 시도해 주세요.");
-  }finally{goBtn.disabled=false;goBtn.textContent="분석하기";}
+    await Promise.all([...sJobs,oJob]);statusBar.classList.add('hide');
+  }catch(e){inputView.classList.remove('hide');resultView.classList.add('hide');showErr("분석에 실패했어요. "+(e.message||"")+" 잠시 후 다시 시도해 주세요.");}
+  finally{goBtn.disabled=false;goBtn.textContent="분석하기";}
 }
 
 async function analyzeOne(sentence){
-  const sys="너는 한국 고등학생을 돕는 수능 영어 분석 전문가야. 주어진 영어 '한 문장'을 분석해 오직 JSON 객체만 출력. 마크다운 금지. 키:\n- kr: 자연스러운 한국어 해석 한 줄.\n- words: 고등 핵심 단어를 [영단어,한국어뜻] 배열로 3~6개(기본형).\n- grammar: 어법 포인트를 한국어로. 영어 덩어리는 <code>...</code>로.\n- explain: '쉬운 설명'. 직역을 넘어 이 문장이 무슨 뜻인지 한국어로 풀어 이해시켜. 앞뒤 논리·강조점·각 부분의 의미를 2~4문장으로. 모든 설명은 한국어.";
+  const sys="너는 한국 고등학생 내신 대비를 돕는 영어 분석 전문가야. 주어진 영어 '한 문장'을 분석해 오직 JSON 객체만 출력. 마크다운 금지. 키:\n- kr: 자연스러운 한국어 해석 한 줄.\n- words: 고등 핵심 단어 [영단어,한국어뜻] 배열 3~6개(기본형).\n- grammar: 어법 포인트(시험에 나올 변형 지점 위주). 영어 덩어리는 <code>...</code>로.\n- syntax: 구조/구문 분석 — 긴 문장을 끊어읽기로 분해(주어·동사·목적어, 절·수식 관계). [주어]/[동사] 같은 대괄호 표기를 써서 성분을 짚어줘.\n- explain: 쉬운 설명 — 직역을 넘어 이 문장이 무슨 뜻인지 한국어로 풀어 이해시켜(2~4문장). 모든 설명은 한국어.";
   return extractJSON(await callClaude([{type:"text",text:sentence}],sys));
 }
 
-/* ---------- 렌더 ---------- */
-const chev='<svg class="chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
+/* ===== 렌더 ===== */
+const chev='<svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
 let rowEls=[],psents=[];
-
-function resetSolve(){
-  qtypeEl.classList.add('hide');answerBox.classList.add('hide');choiceBox.classList.add('hide');
-  themeEl.innerHTML='<div class="sk" style="width:80%"></div>';
-  summaryEl.innerHTML='<div class="sk" style="width:92%"></div><div class="sk" style="width:58%"></div>';
-}
-function showResults(items,opts){
+function resetSolve(){$('#solve').classList.add('hide');qtypeEl.classList.add('hide');answerBox.classList.add('hide');choiceBox.classList.add('hide');themeEl.innerHTML='';summaryEl.innerHTML='';}
+function showResults(items,loading){
   inputView.classList.add('hide');resultView.classList.remove('hide');
-  totalEl.textContent=items.length;counter.textContent=0;hideBtn.setAttribute('aria-pressed','false');
-  resetSolve();
-  full.innerHTML=items.map((d,i)=>`<button class="psent" data-i="${i}">${esc(d.en)}</button>`).join(' ');
-  rows.innerHTML=items.map((d,i)=>`
-    <article class="row" data-i="${i}">
-      <button class="rowhead" aria-expanded="false"><span class="num">${i+1}</span><span class="stext">${esc(d.en)}</span>${chev}</button>
-      <div class="drawer"><div class="drawer-inner"><div class="body" id="body-${i}">${opts.loading?skeleton():bodyHTML(d)}</div></div></div>
-    </article>`).join('');
+  totalEl.textContent=items.length;hideBtn.setAttribute('aria-pressed','false');resetSolve();
+  full.innerHTML=items.map((d,i)=>'<button class="psent" data-i="'+i+'">'+esc(d.en)+'</button>').join(' ');
+  rows.innerHTML=items.map((d,i)=>'<article class="row" data-i="'+i+'"><button class="rowhead" aria-expanded="false"><span class="num">'+(i+1)+'</span><span class="stext">'+esc(d.en)+'</span>'+chev+'</button><div class="drawer"><div class="drawer-inner"><div class="body" id="body-'+i+'">'+(loading?skeleton():bodyHTML(d))+'</div></div></div></article>').join('');
   rowEls=[...rows.querySelectorAll('.row')];psents=[...full.querySelectorAll('.psent')];
-  rowEls.forEach((row,i)=>row.querySelector('.rowhead').addEventListener('click',()=>toggle(i,false)));
-  psents.forEach((p,i)=>p.addEventListener('click',()=>{rowEls[i].classList.contains('open')?rowEls[i].scrollIntoView({behavior:'smooth',block:'center'}):toggle(i,true);}));
-  window.scrollTo({top:0,behavior:'smooth'});
+  rowEls.forEach((row,i)=>row.querySelector('.rowhead').addEventListener('click',()=>toggle(i)));
+  psents.forEach((p,i)=>p.addEventListener('click',()=>{if(!rowEls[i].classList.contains('open'))toggle(i);rowEls[i].scrollIntoView({behavior:'smooth',block:'center'});}));
+  window.scrollTo(0,0);
 }
-function fillExplain(ov){
-  if(ov.type){qtypeEl.textContent=ov.type;qtypeEl.classList.remove('hide');}
-  themeEl.innerHTML=ov.theme||'—';
-  summaryEl.innerHTML=ov.summary||'—';
-  if(ov.answer){ansVal.textContent=ov.answer;ansReason.innerHTML=ov.answerReason||'';answerBox.classList.remove('hide');}
-}
-function fillChoices(ch){
-  const list=ch.choiceAnalysis||[];if(!list.length)return;
-  choiceList.innerHTML=list.map(c=>`
-    <li class="choice2 ${c.correct?'correct':'wrong'}">
-      <div class="top"><span class="lab2">${esc(c.label||'')}</span><span class="txt2">${esc(c.text||'')}</span><span class="tag2">${c.correct?'정답':'오답'}</span></div>
-      <div class="note2">${c.note||''}</div>
-    </li>`).join('');
-  choiceBox.classList.remove('hide');
-}
-function solveError(){themeEl.innerHTML='해설을 불러오지 못했어요. 다시 시도해 주세요.';summaryEl.innerHTML='—';}
-function fillRow(i,d){
-  document.getElementById('body-'+i).innerHTML=bodyHTML(d);
-  if(hideBtn.getAttribute('aria-pressed')==='true'){const t=document.querySelector('#body-'+i+' .trans');if(t)t.classList.add('hidden');}
-}
+function fillExplain(ov){$('#solve').classList.remove('hide');if(ov.type){qtypeEl.textContent=ov.type;qtypeEl.classList.remove('hide');}themeEl.innerHTML=ov.theme||'—';summaryEl.innerHTML=ov.summary||'—';if(ov.answer){ansVal.textContent=ov.answer;ansReason.innerHTML=ov.answerReason||'';answerBox.classList.remove('hide');}}
+function fillChoices(ch){const list=ch.choiceAnalysis||[];if(!list.length)return;choiceList.innerHTML=list.map(c=>'<li class="choice '+(c.correct?'correct':'')+'"><div class="t"><span class="lab">'+esc(c.label||'')+'</span><span class="tx">'+esc(c.text||'')+'</span><span class="tag">'+(c.correct?'정답':'오답')+'</span></div><div class="note">'+(c.note||'')+'</div></li>').join('');choiceBox.classList.remove('hide');}
+function solveError(){$('#solve').classList.remove('hide');themeEl.innerHTML='해설을 불러오지 못했어요.';summaryEl.innerHTML='—';}
+function fillRow(i,d){document.getElementById('body-'+i).innerHTML=bodyHTML(d);if(hideBtn.getAttribute('aria-pressed')==='true'){const t=document.querySelector('#body-'+i+' .box-trans');if(t)t.classList.add('hidden');}}
 function bodyHTML(d){
-  const words=(d.words||[]).map(p=>{let w,m;if(Array.isArray(p)){[w,m]=p;}else{w=p.w||p.word||'';m=p.m||p.meaning||'';}return `<div class="word"><span class="w">${esc(w)}</span><span class="m">${esc(m)}</span></div>`;}).join('');
-  return `<div class="trans-wrap"><div class="trans">${esc(d.kr||'')}</div></div>
-    <div class="cat"><div class="lab vocab"><i></i>단어</div><div class="content"><div class="words">${words||'—'}</div></div></div>
-    <div class="cat"><div class="lab grammar"><i></i>어법</div><div class="content">${d.grammar||'—'}</div></div>
-    <div class="cat"><div class="lab explain"><i></i>쉬운 설명</div><div class="content"><div class="explainbox">${d.explain||'—'}</div></div></div>`;
+  const words=(d.words||[]).map(p=>{let w,m;if(Array.isArray(p)){[w,m]=p;}else{w=p.w||p.word||'';m=p.m||p.meaning||'';}return '<div class="word"><span class="w">'+esc(w)+'</span><span class="m">'+esc(m)+'</span></div>';}).join('');
+  return ''+
+    cat('vocab','단어','<div class="words">'+(words||'—')+'</div>')+
+    cat('grammar','어법',d.grammar||'—')+
+    cat('syntax','구조/구문 분석',d.syntax||'—')+
+    '<div class="cat"><div class="clab lab-trans"><i></i>해석</div><div class="cbox box-trans">'+esc(d.kr||'')+'</div></div>'+
+    cat('explain','쉬운 설명',d.explain||'—');
 }
-function skeleton(){return `<div class="sk" style="width:70%"></div><div class="sk" style="width:90%"></div><div class="sk" style="width:55%"></div>`;}
-function toggle(i,scroll){
-  const row=rowEls[i],head=row.querySelector('.rowhead');
-  const open=!row.classList.contains('open');
-  row.classList.toggle('open',open);head.setAttribute('aria-expanded',open);psents[i].classList.toggle('active',open);
-  counter.textContent=rowEls.filter(r=>r.classList.contains('open')).length;
-  if(open&&scroll)row.scrollIntoView({behavior:'smooth',block:'center'});
-}
-hideBtn.addEventListener('click',()=>{const on=hideBtn.getAttribute('aria-pressed')==='true';hideBtn.setAttribute('aria-pressed',!on);document.querySelectorAll('.trans').forEach(t=>t.classList.toggle('hidden',!on));});
-rows.addEventListener('click',e=>{const t=e.target.closest('.trans.hidden');if(t){e.stopPropagation();t.classList.remove('hidden');}});
+function cat(key,label,html){const lab={vocab:'lab-vocab',grammar:'lab-grammar',syntax:'lab-syntax',explain:'lab-explain'}[key];const box={vocab:'box-vocab',grammar:'box-grammar',syntax:'box-syntax',explain:'box-explain'}[key];return '<div class="cat"><div class="clab '+lab+'"><i></i>'+label+'</div><div class="cbox '+box+'">'+html+'</div></div>';}
+function skeleton(){return '<div class="sk" style="width:70%"></div><div class="sk" style="width:92%"></div><div class="sk" style="width:55%"></div>';}
+function toggle(i){const row=rowEls[i];const open=!row.classList.contains('open');row.classList.toggle('open',open);row.querySelector('.rowhead').setAttribute('aria-expanded',open);psents[i].classList.toggle('active',open);}
+hideBtn.addEventListener('click',()=>{const on=hideBtn.getAttribute('aria-pressed')==='true';hideBtn.setAttribute('aria-pressed',!on);document.querySelectorAll('.box-trans').forEach(t=>t.classList.toggle('hidden',!on));});
+rows.addEventListener('click',e=>{const t=e.target.closest('.box-trans.hidden');if(t){e.stopPropagation();t.classList.remove('hidden');}});
 function showErr(m){errBox.textContent=m;errBox.classList.remove('hide');}
 function esc(s){return String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
 </script>

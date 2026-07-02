@@ -48,10 +48,10 @@
   .wrap{max-width:480px;margin:0 auto;padding:0 18px calc(40px + env(safe-area-inset-bottom));}
 
   /* header / wordmark */
-  header{padding:38px 0 8px 15px;}
+  header{padding:34px 0 8px;}
   .wm{display:inline-block;line-height:0;}
-  .wm img{height:120px;width:auto;display:block;}
-  .lede{color:var(--sub);font-size:15px;margin:26px 0 0;line-height:1.55;}
+  .wm img{height:54px;width:auto;display:block;}
+  .lede{color:var(--sub);font-size:13.5px;margin:22px 0 0;line-height:1.55;}
 
   /* input card */
   .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;margin-top:22px;box-shadow:var(--shadow);}
@@ -156,16 +156,32 @@
   footer{margin-top:32px;text-align:center;font-size:11.5px;color:var(--faint);line-height:1.6;}
   .hide{display:none!important;}
   @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
+
+  #authBar button:focus-visible{outline:2px solid var(--primary);outline-offset:2px;}
+  #userInfo.show{display:flex!important;}
+  #loginBtn.show{display:inline-flex!important;}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <div class="wrap">
+  <!-- 로그인 상태 바 -->
+  <div id="authBar" style="display:flex;align-items:center;justify-content:flex-end;padding:12px 0;font-size:13px;color:var(--sub);">
+    <button id="loginBtn" style="background:#FEE500;color:#191919;border:0;border-radius:10px;padding:9px 14px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;display:none;">
+      카카오로 시작하기
+    </button>
+    <div id="userInfo" style="display:none;align-items:center;gap:10px;">
+      <span id="userName" style="color:var(--ink);font-weight:500;"></span>
+      <button id="logoutBtn" style="background:none;border:1px solid var(--line);border-radius:8px;padding:6px 11px;font-family:inherit;font-size:12px;color:var(--sub);cursor:pointer;">로그아웃</button>
+    </div>
+  </div>
+
 
   <!-- ===== 입력 ===== -->
   <section id="inputView">
     <header>
       <span class="wm"><img class="wm-l" src="logo-light.png" alt="liel"></span>
-      <p class="lede">막힌 지문을 붙여넣거나 캡처해 올리면<br>단어·어법·구조·해석·쉬운 설명까지 문장마다 또렷하게.</p>
+      <p class="lede">막힌 지문을 붙여넣거나 캡처해 올리면 — 단어·어법·구조·해석·쉬운 설명까지 문장마다 또렷하게.</p>
     </header>
     <div class="card">
       <textarea id="ta" placeholder="영어 지문을 붙여넣으세요. 시험 범위 지문도 좋아요."></textarea>
@@ -179,7 +195,7 @@
       <button class="btn btn-primary" id="go">분석하기</button>
       <button class="btn btn-ghost" id="demo">예시 보기</button>
       <div class="err hide" id="err"></div>
-      <p class="hint">팁 : 캡처는 글자가 또렷할수록 정확해요. 한 단락(4~8문장) 정도가 보기 좋아요.</p>
+      <p class="hint">팁 · 캡처는 글자가 또렷할수록 정확해요. 한 단락(4~8문장) 정도가 보기 좋아요.</p>
     </div>
   </section>
 
@@ -334,6 +350,56 @@ hideBtn.addEventListener('click',()=>{const on=hideBtn.getAttribute('aria-presse
 rows.addEventListener('click',e=>{const t=e.target.closest('.box-trans.hidden');if(t){e.stopPropagation();t.classList.remove('hidden');}});
 function showErr(m){errBox.textContent=m;errBox.classList.remove('hide');}
 function esc(s){return String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+
+/* ============ Supabase 로그인 (카카오) ============ */
+const SB_URL = "https://ejalaqjscmyyprrouzrq.supabase.co";
+const SB_KEY = "sb_publishable_PjtBPsgp7IK1FccsQ_3knw_uJI7HioA";
+const sb = window.supabase.createClient(SB_URL, SB_KEY);
+
+const loginBtn = document.getElementById("loginBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+const userInfo = document.getElementById("userInfo");
+const userName = document.getElementById("userName");
+
+// 카카오 로그인 시작
+loginBtn.addEventListener("click", async () => {
+  const { error } = await sb.auth.signInWithOAuth({
+    provider: "kakao",
+    options: { redirectTo: window.location.origin + window.location.pathname }
+  });
+  if (error) alert("로그인 오류: " + error.message);
+});
+
+// 로그아웃
+logoutBtn.addEventListener("click", async () => {
+  await sb.auth.signOut();
+  renderAuth(null);
+});
+
+// 로그인 상태에 따라 화면 그리기
+function renderAuth(user) {
+  if (user) {
+    loginBtn.classList.remove("show");
+    userInfo.classList.add("show");
+    const name = user.user_metadata?.name || user.user_metadata?.full_name || user.user_metadata?.preferred_username || "회원";
+    userName.textContent = "안녕, " + name;
+  } else {
+    loginBtn.classList.add("show");
+    userInfo.classList.remove("show");
+  }
+}
+
+// 페이지 로드 시 현재 로그인 상태 확인
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  renderAuth(session?.user || null);
+})();
+
+// 로그인 상태가 바뀌면 자동 반영 (다른 탭에서 로그아웃해도 감지)
+sb.auth.onAuthStateChange((_event, session) => {
+  renderAuth(session?.user || null);
+});
+
 </script>
 </body>
 </html>

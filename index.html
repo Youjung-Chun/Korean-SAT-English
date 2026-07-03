@@ -453,10 +453,10 @@ renderAuth = function(user) {
   _origRenderAuth(user);
   currentUser = user;
   if (user) {
-    savedSection.style.display = "block";
+    if (savedSection) savedSection.style.display = "block";
     loadSavedList();
   } else {
-    savedSection.style.display = "none";
+    if (savedSection) savedSection.style.display = "none";
   }
 };
 
@@ -492,7 +492,7 @@ async function loadSavedList() {
 }
 
 function renderSavedList(items) {
-  savedCount.textContent = items.length + "개";
+  if (savedCount) savedCount.textContent = items.length + "개";
   if (items.length === 0) {
     savedList.innerHTML = '<div class="savedEmpty">아직 저장된 지문이 없어요.<br>지문을 분석하면 여기에 자동 저장돼요.</div>';
     return;

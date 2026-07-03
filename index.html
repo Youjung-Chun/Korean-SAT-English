@@ -226,6 +226,7 @@
       <button class="btn btn-ghost" id="demo">예시 보기</button>
       <div class="err hide" id="err"></div>
       <p class="hint">팁 : 캡처는 글자가 또렷할수록 정확해요. 한 단락(4~8문장) 정도가 보기 좋아요.</p>
+      <p id="usageInfo" style="margin-top:6px;font-size:12px;color:var(--faint);"></p>
     </div>
 <div style="display:none;">
   </section>
@@ -317,6 +318,7 @@ async function run(){
   errBox.classList.add('hide');
   const text=ta.value.trim();
   if(!text&&!pendingImage){showErr("지문을 붙여넣거나 캡처 이미지를 올려 주세요.");return;}
+  if(!(await checkLimit()))return;
   goBtn.disabled=true;goBtn.textContent="분석 중…";
   try{
     const exSys="너는 수능·내신 영어 문제를 다루는 전문가야. 입력(텍스트/이미지)에서 정보를 추출해 오직 JSON 객체만 출력. 마크다운 금지. 키:\n- passage: 읽기 본문을 원문 그대로 문장 단위 문자열 배열. 각주·한국어 지시문·요약문·선지는 제외.\n- question: 한국어 지시문과 (있다면) 빈칸 포함 요약문장을 합친 문자열. 없으면 \"\".\n- choices: 선택지가 있으면 [\"① ...\"] 배열, 없으면 [].";
@@ -340,8 +342,10 @@ async function run(){
       }
     })().catch(()=>solveError());
     await Promise.all([...sJobs,oJob]);statusBar.classList.add('hide');
-    // 로그인 상태라면 자동 저장
-    if(currentUser){savePassage(passage.map(en=>({en})), sentenceResults, overviewResult);}
+    // 로그인=자동 저장(=사용량 카운트), 비회원=로컬 카운트
+    if(currentUser){await savePassage(passage.map(en=>({en})), sentenceResults, overviewResult);}
+    else{bumpGuestCount();}
+    updateUsageUI();
   }catch(e){inputView.classList.remove('hide');resultView.classList.add('hide');showErr("분석에 실패했어요. "+(e.message||"")+" 잠시 후 다시 시도해 주세요.");}
   finally{goBtn.disabled=false;goBtn.textContent="분석하기";}
 }
@@ -637,6 +641,63 @@ openSaved = async function(id) {
   closeDrawer();
   await _origOpenSaved(id);
 };
+
+
+
+/* ============ 하루 사용 제한 (v3) ============ */
+const FREE_LIMIT = 3;   // 무료 회원 하루 3지문
+const GUEST_LIMIT = 1;  // 비회원 하루 1지문 체험
+
+function guestKey(){const d=new Date();return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();}
+function getGuestCount(){try{const s=JSON.parse(localStorage.getItem("liel_guest")||"{}");return s.date===guestKey()?(s.count||0):0;}catch(e){return 0;}}
+function bumpGuestCount(){try{localStorage.setItem("liel_guest",JSON.stringify({date:guestKey(),count:getGuestCount()+1}));}catch(e){}}
+
+async function getMemberTodayCount(){
+  if(!currentUser)return 0;
+  const start=new Date();start.setHours(0,0,0,0);
+  const {count,error}=await sb.from("passages")
+    .select("id",{count:"exact",head:true})
+    .eq("user_id",currentUser.id)
+    .gte("created_at",start.toISOString());
+  if(error){console.error("사용량 조회 실패:",error);return 0;}
+  return count||0;
+}
+
+async function checkLimit(){
+  if(currentUser){
+    const c=await getMemberTodayCount();
+    if(c>=FREE_LIMIT){
+      showErr("오늘 무료 분석 "+FREE_LIMIT+"회를 모두 사용했어요. 내일 다시 만나요!");
+      return false;
+    }
+  }else{
+    if(getGuestCount()>=GUEST_LIMIT){
+      showErr("비회원은 하루 "+GUEST_LIMIT+"회 체험할 수 있어요. 카카오로 로그인하면 하루 "+FREE_LIMIT+"회까지 쓸 수 있어요!");
+      return false;
+    }
+  }
+  return true;
+}
+
+async function updateUsageUI(){
+  const el=document.getElementById("usageInfo");
+  if(!el)return;
+  if(currentUser){
+    const c=await getMemberTodayCount();
+    el.textContent="오늘 남은 분석 "+Math.max(0,FREE_LIMIT-c)+" / "+FREE_LIMIT+"회";
+  }else{
+    el.textContent="비회원 체험 "+Math.max(0,GUEST_LIMIT-getGuestCount())+" / "+GUEST_LIMIT+"회 · 카카오 로그인하면 하루 "+FREE_LIMIT+"회";
+  }
+}
+
+// 로그인 상태 바뀔 때마다 사용량 표시 갱신
+const _origRender3 = renderAuth;
+renderAuth = function(user){
+  _origRender3(user);
+  currentUser = user;
+  updateUsageUI();
+};
+sb.auth.getSession().then(({data:{session}}) => renderAuth(session?.user || null));
 
 </script>
 </body>

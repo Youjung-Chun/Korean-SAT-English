@@ -160,6 +160,19 @@
   #authBar button:focus-visible{outline:2px solid var(--primary);outline-offset:2px;}
   #userInfo.show{display:flex!important;}
   #loginBtn.show{display:inline-flex!important;}
+
+  .savedCard{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 13px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:border-color .15s;}
+  .savedCard:hover{border-color:var(--primary);}
+  .savedCard .info{flex:1;min-width:0;}
+  .savedCard .ttl{font-size:13.5px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px;}
+  .savedCard .date{font-size:11px;color:var(--faint);}
+  .savedCard .acts{display:flex;gap:4px;flex-shrink:0;}
+  .savedCard .actBtn{background:none;border:0;color:var(--faint);cursor:pointer;padding:6px;border-radius:6px;font-size:14px;line-height:1;}
+  .savedCard .actBtn:hover{background:var(--bg);color:var(--sub);}
+  .savedEditForm{display:flex;gap:6px;flex:1;}
+  .savedEditForm input{flex:1;border:1px solid var(--primary);border-radius:8px;padding:6px 10px;font-family:inherit;font-size:13px;background:var(--field);color:var(--ink);outline:none;}
+  .savedEditForm button{background:var(--primary);color:#fff;border:0;border-radius:8px;padding:6px 12px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;}
+  .savedEmpty{background:var(--surface);border:1px dashed var(--line);border-radius:12px;padding:20px;text-align:center;font-size:12.5px;color:var(--sub);}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -181,7 +194,7 @@
   <section id="inputView">
     <header>
       <span class="wm"><img class="wm-l" src="logo-light.png" alt="liel"></span>
-      <p class="lede">막힌 지문을 붙여넣거나 캡처해 올리면<br>단어·어법·구조·해석·쉬운 설명까지 문장마다 또렷하게.</p>
+      <p class="lede">막힌 지문을 붙여넣거나 캡처해 올리면 — 단어·어법·구조·해석·쉬운 설명까지 문장마다 또렷하게.</p>
     </header>
     <div class="card">
       <textarea id="ta" placeholder="영어 지문을 붙여넣으세요. 시험 범위 지문도 좋아요."></textarea>
@@ -195,8 +208,16 @@
       <button class="btn btn-primary" id="go">분석하기</button>
       <button class="btn btn-ghost" id="demo">예시 보기</button>
       <div class="err hide" id="err"></div>
-      <p class="hint">팁 : 캡처는 글자가 또렷할수록 정확해요. 한 단락(4~8문장) 정도가 보기 좋아요.</p>
+      <p class="hint">팁 · 캡처는 글자가 또렷할수록 정확해요. 한 단락(4~8문장) 정도가 보기 좋아요.</p>
     </div>
+    <section id="savedSection" style="margin-top:22px;display:none;">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px;padding:0 4px;">
+        <h2 style="font-size:14px;font-weight:700;color:var(--ink);margin:0;">내 저장한 지문</h2>
+        <span id="savedCount" style="font-size:11.5px;color:var(--sub);"></span>
+      </div>
+      <div id="savedList" style="display:flex;flex-direction:column;gap:8px;"></div>
+    </section>
+    <div style="display:none;">
   </section>
 
   <!-- ===== 결과 ===== -->
@@ -297,16 +318,20 @@ async function run(){
     showResults(passage.map(en=>({en})),true);
     statusBar.classList.remove('hide');let done=0;const total=passage.length;
     statusTxt.textContent="분석 중… 0 / "+total+" 문장";
-    const sJobs=passage.map((s,i)=>analyzeOne(s).then(d=>fillRow(i,d)).catch(()=>fillRow(i,{kr:"이 문장 분석에 실패했어요.",words:[],grammar:"—",syntax:"—",explain:"—"})).finally(()=>{done++;statusTxt.textContent="분석 중… "+done+" / "+total+" 문장";}));
+    const sentenceResults=new Array(total);
+    const sJobs=passage.map((s,i)=>analyzeOne(s).then(d=>{sentenceResults[i]={en:s,...d};fillRow(i,d);}).catch(()=>{sentenceResults[i]={en:s,kr:"분석 실패",words:[],grammar:"—",syntax:"—",explain:"—"};fillRow(i,sentenceResults[i]);}).finally(()=>{done++;statusTxt.textContent="분석 중… "+done+" / "+total+" 문장";}));
+    let overviewResult=null;
     const oJob=(async()=>{
       const ovSys="너는 수능·내신 영어 해설 강사야. 오직 JSON만 출력. 키: type(유형 짧게, 선택지 없으면 '독해'), theme(주제 한 문장), summary(요약 1~2문장), answer(선택지 있으면 정답 기호 예 '①', 없으면 null), answerReason(선택지 있으면 정답 이유 2~4문장, 없으면 null). 한국어.";
-      const ov=extractJSON(await callClaude(ctx(ex),ovSys));fillExplain(ov);
+      const ov=extractJSON(await callClaude(ctx(ex),ovSys));overviewResult=ov;fillExplain(ov);
       if(ex.choices&&ex.choices.length){
         const chSys="너는 해설 강사야. 정답은 "+(ov.answer||"(미정)")+". 각 선택지가 왜 정답/오답인지 오직 JSON만 출력. 키 choiceAnalysis: [{label,text,correct(true/false),note(1~2문장)}]. 순서 유지. 한국어.";
-        fillChoices(extractJSON(await callClaude(ctx(ex),chSys)));
+        const ch=extractJSON(await callClaude(ctx(ex),chSys));if(overviewResult)overviewResult.choiceAnalysis=ch.choiceAnalysis;fillChoices(ch);
       }
     })().catch(()=>solveError());
     await Promise.all([...sJobs,oJob]);statusBar.classList.add('hide');
+    // 로그인 상태라면 자동 저장
+    if(currentUser){savePassage(passage.map(en=>({en})), sentenceResults, overviewResult);}
   }catch(e){inputView.classList.remove('hide');resultView.classList.add('hide');showErr("분석에 실패했어요. "+(e.message||"")+" 잠시 후 다시 시도해 주세요.");}
   finally{goBtn.disabled=false;goBtn.textContent="분석하기";}
 }
@@ -403,6 +428,140 @@ function renderAuth(user) {
 sb.auth.onAuthStateChange((_event, session) => {
   renderAuth(session?.user || null);
 });
+
+
+
+/* ============ 지문 저장 · 목록 (v2) ============ */
+let currentUser = null;
+const savedSection = document.getElementById("savedSection");
+const savedList = document.getElementById("savedList");
+const savedCount = document.getElementById("savedCount");
+
+// renderAuth 호출될 때 저장 목록도 갱신
+const _origRenderAuth = renderAuth;
+renderAuth = function(user) {
+  _origRenderAuth(user);
+  currentUser = user;
+  if (user) {
+    savedSection.style.display = "block";
+    loadSavedList();
+  } else {
+    savedSection.style.display = "none";
+  }
+};
+
+// 로그인 상태 재확인 (렌더 함수 덮어썼으니 다시 반영)
+sb.auth.getSession().then(({data:{session}}) => renderAuth(session?.user || null));
+
+// 지문 저장 (분석 후 자동 호출)
+async function savePassage(passageArr, analysisResults, overview) {
+  if (!currentUser) return; // 비로그인 → 저장 안 함
+  const fullText = passageArr.map(s => s.en || s).join(" ");
+  const autoTitle = fullText.slice(0, 40) + (fullText.length > 40 ? "…" : "");
+  const analysis = { sentences: analysisResults, overview: overview || null };
+  const { error } = await sb.from("passages").insert({
+    user_id: currentUser.id,
+    passage_text: fullText,
+    analysis: analysis,
+    title: autoTitle
+  });
+  if (error) { console.error("저장 실패:", error); return; }
+  loadSavedList();
+}
+
+// 저장 목록 불러오기
+async function loadSavedList() {
+  if (!currentUser) return;
+  const { data, error } = await sb.from("passages")
+    .select("id, title, created_at, analysis, passage_text")
+    .eq("user_id", currentUser.id)
+    .order("created_at", { ascending: false })
+    .limit(10);
+  if (error) { console.error("불러오기 실패:", error); return; }
+  renderSavedList(data || []);
+}
+
+function renderSavedList(items) {
+  savedCount.textContent = items.length + "개";
+  if (items.length === 0) {
+    savedList.innerHTML = '<div class="savedEmpty">아직 저장된 지문이 없어요.<br>지문을 분석하면 여기에 자동 저장돼요.</div>';
+    return;
+  }
+  savedList.innerHTML = items.map(item => {
+    const dateStr = new Date(item.created_at).toLocaleDateString("ko-KR", {month:"long", day:"numeric"});
+    return '<div class="savedCard" data-id="' + item.id + '">' +
+      '<div class="info">' +
+        '<div class="ttl">' + esc(item.title || "제목 없음") + '</div>' +
+        '<div class="date">' + dateStr + '</div>' +
+      '</div>' +
+      '<div class="acts">' +
+        '<button class="actBtn" data-act="edit" title="제목 수정">✏️</button>' +
+        '<button class="actBtn" data-act="del" title="삭제">🗑️</button>' +
+      '</div>' +
+    '</div>';
+  }).join("");
+}
+
+// 카드 클릭 → 다시보기 / 수정 / 삭제
+savedList.addEventListener("click", async e => {
+  const card = e.target.closest(".savedCard");
+  if (!card) return;
+  const id = card.dataset.id;
+  const act = e.target.dataset.act;
+
+  if (act === "edit") {
+    e.stopPropagation();
+    startEdit(card, id);
+    return;
+  }
+  if (act === "del") {
+    e.stopPropagation();
+    if (!confirm("이 지문을 삭제할까요?")) return;
+    const { error } = await sb.from("passages").delete().eq("id", id);
+    if (error) alert("삭제 실패: " + error.message);
+    else loadSavedList();
+    return;
+  }
+  // 카드 자체 클릭 → 다시보기
+  openSaved(id);
+});
+
+function startEdit(card, id) {
+  const info = card.querySelector(".info");
+  const currentTitle = card.querySelector(".ttl").textContent;
+  const form = document.createElement("div");
+  form.className = "savedEditForm";
+  form.innerHTML = '<input type="text" value="' + esc(currentTitle) + '" maxlength="60"><button>저장</button>';
+  info.replaceWith(form);
+  const input = form.querySelector("input");
+  input.focus(); input.select();
+  const save = async () => {
+    const newTitle = input.value.trim() || "제목 없음";
+    const { error } = await sb.from("passages").update({ title: newTitle }).eq("id", id);
+    if (error) alert("수정 실패: " + error.message);
+    loadSavedList();
+  };
+  form.querySelector("button").addEventListener("click", save);
+  input.addEventListener("keydown", e => { if (e.key === "Enter") save(); if (e.key === "Escape") loadSavedList(); });
+}
+
+async function openSaved(id) {
+  const { data, error } = await sb.from("passages").select("*").eq("id", id).single();
+  if (error) { alert("불러오기 실패: " + error.message); return; }
+  const sentences = (data.analysis?.sentences || []).map((s, i) => ({
+    en: s.en, kr: s.kr, words: s.words, grammar: s.grammar, syntax: s.syntax, explain: s.explain
+  }));
+  if (!sentences.length) {
+    // 저장된 결과가 없거나 이상 → 원문만 보이도록
+    showResults([{en: data.passage_text}], false);
+    return;
+  }
+  showResults(sentences, false);
+  if (data.analysis?.overview) {
+    fillExplain(data.analysis.overview);
+    if (data.analysis.overview.choiceAnalysis) fillChoices(data.analysis.overview);
+  }
+}
 
 </script>
 </body>

@@ -173,6 +173,10 @@
   .savedEditForm input{flex:1;border:1px solid var(--primary);border-radius:8px;padding:6px 10px;font-family:inherit;font-size:13px;background:var(--field);color:var(--ink);outline:none;}
   .savedEditForm button{background:var(--primary);color:#fff;border:0;border-radius:8px;padding:6px 12px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;}
   .savedEmpty{background:var(--surface);border:1px dashed var(--line);border-radius:12px;padding:20px;text-align:center;font-size:12.5px;color:var(--sub);}
+
+  .grammarList{margin:0;padding:0 0 0 1.4em;display:flex;flex-direction:column;gap:6px;}
+  .grammarList li{padding-left:2px;line-height:1.62;}
+  .grammarList li::marker{color:var(--grammar);font-weight:600;}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -267,13 +271,13 @@
 <script>
 /* ===== 예시 데이터 ===== */
 const SAMPLE=[
-  {en:"When sport consumers passionately support a particular kind of sport, a specific competition or a specific team, there is low cross elasticity of demand.",kr:"스포츠 소비자가 특정 종목, 특정 대회, 또는 특정 팀을 열정적으로 응원할 때, 수요의 교차 탄력성이 낮다.",words:[["passionately","열정적으로"],["particular","특정한"],["elasticity","탄력성"],["demand","수요"]],grammar:"<code>When ~</code> 은 시간 부사절, <code>there is ~</code> 는 존재 구문. support의 목적어 3개가 or로 병렬돼요.",syntax:"[When 소비자가 ~ 응원할 때](부사절) + [there is](유도부사) + [low cross elasticity of demand](주어).",explain:"한 종목·팀을 열정적으로 응원하면 가격이 변해도 다른 스포츠로 잘 옮기지 않는다는 뜻. ‘교차 탄력성이 낮다’ = 대체가 잘 안 일어난다는 경제 표현이에요."},
-  {en:"This is an economic term that means it is difficult to substitute one sport product for another.",kr:"이것은 한 스포츠 상품을 다른 것으로 대체하기 어렵다는 것을 뜻하는 경제 용어이다.",words:[["term","용어"],["substitute","대체하다"],["economic","경제의"]],grammar:"<code>that means ~</code> 는 term을 꾸미는 주격 관계대명사절. means의 목적어는 <code>it is difficult to substitute ~</code> (가주어 it / 진주어 to부정사).",syntax:"[This](주어) [is](동사) [an economic term](보어) + [that means ...](관계절).",explain:"앞 문장의 ‘낮은 교차 탄력성’을 풀어 설명한 부분이에요. 한 스포츠를 다른 스포츠로 바꾸기 어렵다는 경제 용어라는 뜻."},
+  {en:"When sport consumers passionately support a particular kind of sport, a specific competition or a specific team, there is low cross elasticity of demand.",kr:"스포츠 소비자가 특정 종목, 특정 대회, 또는 특정 팀을 열정적으로 응원할 때, 수요의 교차 탄력성이 낮다.",words:[["passionately","열정적으로"],["particular","특정한"],["elasticity","탄력성"],["demand","수요"]],grammar:["<code>When ~</code> 은 시간 부사절을 이끌어요.","<code>there is ~</code> 는 존재를 나타내는 구문.","support의 목적어 3개(a particular kind of sport / a specific competition / a specific team)가 or로 병렬돼요."],syntax:"[When 소비자가 ~ 응원할 때](부사절) + [there is](유도부사) + [low cross elasticity of demand](주어).",explain:"한 종목·팀을 열정적으로 응원하면 가격이 변해도 다른 스포츠로 잘 옮기지 않는다는 뜻. ‘교차 탄력성이 낮다’ = 대체가 잘 안 일어난다는 경제 표현이에요."},
+  {en:"This is an economic term that means it is difficult to substitute one sport product for another.",kr:"이것은 한 스포츠 상품을 다른 것으로 대체하기 어렵다는 것을 뜻하는 경제 용어이다.",words:[["term","용어"],["substitute","대체하다"],["economic","경제의"]],grammar:["<code>that means ~</code> 는 term을 꾸미는 주격 관계대명사절.","means의 목적어절은 <code>it is difficult to substitute ~</code> 구조 (가주어 it / 진주어 to부정사)."],syntax:"[This](주어) [is](동사) [an economic term](보어) + [that means ...](관계절).",explain:"앞 문장의 ‘낮은 교차 탄력성’을 풀어 설명한 부분이에요. 한 스포츠를 다른 스포츠로 바꾸기 어렵다는 경제 용어라는 뜻."},
   {en:"Most sport competitions have an inelastic demand and a high degree of product loyalty.",kr:"대부분의 스포츠 경기는 비탄력적 수요와 높은 제품 충성도를 가진다.",words:[["inelastic","비탄력적인"],["degree","정도"],["loyalty","충성도"]],grammar:"have의 목적어로 <code>an inelastic demand</code> 와 <code>a high degree of product loyalty</code> 가 and로 병렬돼요.",syntax:"[Most sport competitions](주어) [have](동사) [an inelastic demand and a high degree of product loyalty](목적어).",explain:"핵심 문장. 스포츠는 가격·상황이 바뀌어도 수요가 잘 변하지 않고(비탄력적), 팬 충성도가 높다는 뜻이에요."},
-  {en:"Even if fans are unhappy about the result of a game, the winning margin or the standard of refereeing, it is unlikely that they would alter their sporting preferences.",kr:"팬들이 경기 결과, 승점 차, 또는 심판 판정 수준에 불만족하더라도, 자신의 스포츠 선호를 바꿀 가능성은 낮다.",words:[["even if","비록 ~일지라도"],["margin","차이, 폭"],["alter","바꾸다"],["preference","선호"]],grammar:"<code>Even if ~</code> 양보 부사절. <code>it is unlikely that ~</code> 는 가주어 it / 진주어 that절.",syntax:"[Even if ...](양보절), [it](가주어) [is unlikely](동사+보어) + [that they would alter ...](진주어).",explain:"결과·점수차·판정에 화가 나도 팬들은 응원 대상을 좀처럼 안 바꾼다는 뜻. 충성도를 구체적으로 보여줘요."},
-  {en:"If, for instance, a supporter’s football team is playing interstate and the match is not on television, it is unlikely that he/she would go to a hockey game instead, regardless of whether the venue was attractive and the ticket was free.",kr:"예를 들어, 어떤 지지자의 축구팀이 다른 주에서 경기하고 그 경기가 TV에 안 나와도, 경기장이 좋고 표가 공짜인지와 상관없이, 대신 하키 경기를 보러 갈 가능성은 낮다.",words:[["for instance","예를 들어"],["interstate","다른 주에서"],["regardless of","~와 상관없이"],["venue","경기장"]],grammar:"<code>If ~</code> 조건절, <code>regardless of whether ~</code> 는 ‘~인지 아닌지와 상관없이’.",syntax:"[If ...](조건절), [it](가주어) [is unlikely](동사+보어) + [that ... go ...](진주어), [regardless of whether ...](부사구).",explain:"내 축구팀 경기를 못 보고 공짜 좋은 경기장이 있어도 다른 종목으로 안 옮긴다는 예. 충성도가 얼마나 강한지 강조해요."},
+  {en:"Even if fans are unhappy about the result of a game, the winning margin or the standard of refereeing, it is unlikely that they would alter their sporting preferences.",kr:"팬들이 경기 결과, 승점 차, 또는 심판 판정 수준에 불만족하더라도, 자신의 스포츠 선호를 바꿀 가능성은 낮다.",words:[["even if","비록 ~일지라도"],["margin","차이, 폭"],["alter","바꾸다"],["preference","선호"]],grammar:["<code>Even if ~</code> 는 ‘비록 ~일지라도’의 양보 부사절.","<code>it is unlikely that ~</code> 는 가주어 it / 진주어 that절 구문."],syntax:"[Even if ...](양보절), [it](가주어) [is unlikely](동사+보어) + [that they would alter ...](진주어).",explain:"결과·점수차·판정에 화가 나도 팬들은 응원 대상을 좀처럼 안 바꾼다는 뜻. 충성도를 구체적으로 보여줘요."},
+  {en:"If, for instance, a supporter’s football team is playing interstate and the match is not on television, it is unlikely that he/she would go to a hockey game instead, regardless of whether the venue was attractive and the ticket was free.",kr:"예를 들어, 어떤 지지자의 축구팀이 다른 주에서 경기하고 그 경기가 TV에 안 나와도, 경기장이 좋고 표가 공짜인지와 상관없이, 대신 하키 경기를 보러 갈 가능성은 낮다.",words:[["for instance","예를 들어"],["interstate","다른 주에서"],["regardless of","~와 상관없이"],["venue","경기장"]],grammar:["<code>If ~</code> 는 조건 부사절.","<code>it is unlikely that ~</code> 가주어·진주어 구문이 또 등장.","<code>regardless of whether A and B</code> = ‘A와 B인지 아닌지와 상관없이’."],syntax:"[If ...](조건절), [it](가주어) [is unlikely](동사+보어) + [that ... go ...](진주어), [regardless of whether ...](부사구).",explain:"내 축구팀 경기를 못 보고 공짜 좋은 경기장이 있어도 다른 종목으로 안 옮긴다는 예. 충성도가 얼마나 강한지 강조해요."},
   {en:"The situation is quite different for most other products.",kr:"대부분의 다른 상품들에 대해서는 상황이 꽤 다르다.",words:[["situation","상황"],["quite","꽤"],["product","상품"]],grammar:"<code>be different for ~</code> 는 ‘~에 대해서는 다르다’. 흐름을 전환하는 대조 문장.",syntax:"[The situation](주어) [is](동사) [quite different](보어) [for most other products](부사구).",explain:"지금까지의 스포츠와 달리 일반 상품은 사정이 다르다는 전환 문장. 바로 뒤에 예가 이어져요."},
-  {en:"If a consumer bought a computer and discovered that he/she was not satisfied with its quality, he/she would be likely to change brands or shops next time.",kr:"만약 소비자가 컴퓨터를 샀는데 그 품질에 만족하지 못한다는 걸 알게 되면, 다음번에 브랜드나 가게를 바꿀 가능성이 높다.",words:[["consumer","소비자"],["discover","알아차리다"],["satisfied","만족한"],["be likely to","~할 가능성이 높다"]],grammar:"<code>If + 과거동사(bought, discovered) ... would ~</code> 가정의 조건문. discovered의 목적어는 <code>that ...</code>.",syntax:"[If ... bought ... and discovered that ...](조건절), [he/she](주어) [would be likely to change ...](주절).",explain:"일반 상품은 품질이 별로면 다음엔 쉽게 바꾼다는 뜻. 스포츠(안 바꿈)와 정반대라 글의 대조가 완성돼요."}
+  {en:"If a consumer bought a computer and discovered that he/she was not satisfied with its quality, he/she would be likely to change brands or shops next time.",kr:"만약 소비자가 컴퓨터를 샀는데 그 품질에 만족하지 못한다는 걸 알게 되면, 다음번에 브랜드나 가게를 바꿀 가능성이 높다.",words:[["consumer","소비자"],["discover","알아차리다"],["satisfied","만족한"],["be likely to","~할 가능성이 높다"]],grammar:["<code>If + 과거동사 ... would ~</code> 는 가정법 조건문 (실제와 반대 가정).","discovered의 목적어는 that절로, <code>that he/she was not satisfied ~</code> 이 그 내용."],syntax:"[If ... bought ... and discovered that ...](조건절), [he/she](주어) [would be likely to change ...](주절).",explain:"일반 상품은 품질이 별로면 다음엔 쉽게 바꾼다는 뜻. 스포츠(안 바꿈)와 정반대라 글의 대조가 완성돼요."}
 ];
 const SAMPLE_OV={type:"요약문 빈칸",theme:"스포츠 소비자는 강한 제품 충성도 때문에 불리한 조건에서도 다른 선택지로 잘 옮겨가지 않는다.",summary:"일반 상품 소비자와 달리, 스포츠 소비자는 충성도가 높아 불리한 조건에서도 대안으로 갈아타지 않는다.",answer:"①",answerReason:"(A)에는 높은 충성도를 뜻하는 strong이, (B)에는 ‘대안을 받아들이다’를 뜻하는 adopt가 들어가 ‘대안을 받아들이지 않는다’가 되어 글과 일치한다.",choiceAnalysis:[{label:"①",text:"strong … adopt",correct:true,note:"높은 충성도(strong)와 ‘대안을 받아들이지 않는다(adopt)’가 글과 일치."},{label:"②",text:"unconditional … ignore",correct:false,note:"‘unlikely to ignore’면 ‘무시하지 않는다’가 되어 의미가 반대."},{label:"③",text:"little … choose",correct:false,note:"충성도가 ‘거의 없다’는 본문과 반대."},{label:"④",text:"average … avoid",correct:false,note:"‘보통’ 충성도도, ‘avoid’도 본문과 안 맞음."},{label:"⑤",text:"weak … compare",correct:false,note:"‘weak’ 충성도는 본문과 정반대."}]};
 
@@ -351,7 +355,7 @@ async function run(){
 }
 
 async function analyzeOne(sentence){
-  const sys="너는 한국 고등학생 내신 대비를 돕는 영어 분석 전문가야. 주어진 영어 '한 문장'을 분석해 오직 JSON 객체만 출력. 마크다운 금지. 키:\n- kr: 자연스러운 한국어 해석 한 줄.\n- words: 고등 핵심 단어 [영단어,한국어뜻] 배열 3~6개(기본형).\n- grammar: 어법 포인트(시험에 나올 변형 지점 위주). 영어 덩어리는 <code>...</code>로.\n- syntax: 구조/구문 분석 — 긴 문장을 끊어읽기로 분해(주어·동사·목적어, 절·수식 관계). [주어]/[동사] 같은 대괄호 표기를 써서 성분을 짚어줘.\n- explain: 쉬운 설명 — 직역을 넘어 이 문장이 무슨 뜻인지 한국어로 풀어 이해시켜(2~4문장). 모든 설명은 한국어.";
+  const sys="너는 한국 고등학생 내신 대비를 돕는 영어 분석 전문가야. 주어진 영어 '한 문장'을 분석해 오직 JSON 객체만 출력. 마크다운 금지. 키:\n- kr: 자연스러운 한국어 해석 한 줄.\n- words: 고등 핵심 단어 [영단어,한국어뜻] 배열 3~6개(기본형).\n- grammar: 어법 포인트(시험에 나올 변형 지점 위주) — 여러 개면 배열, 하나면 문자열. 영어 덩어리는 <code>...</code>로. 각 포인트는 짧게(1문장).\n- syntax: 구조/구문 분석 — 긴 문장을 끊어읽기로 분해(주어·동사·목적어, 절·수식 관계). [주어]/[동사] 같은 대괄호 표기를 써서 성분을 짚어줘.\n- explain: 쉬운 설명 — 직역을 넘어 이 문장이 무슨 뜻인지 한국어로 풀어 이해시켜(2~4문장). 모든 설명은 한국어.";
   return extractJSON(await callClaude([{type:"text",text:sentence}],sys));
 }
 
@@ -377,7 +381,7 @@ function bodyHTML(d){
   const words=(d.words||[]).map(p=>{let w,m;if(Array.isArray(p)){[w,m]=p;}else{w=p.w||p.word||'';m=p.m||p.meaning||'';}return '<div class="word"><span class="w">'+esc(w)+'</span><span class="m">'+esc(m)+'</span></div>';}).join('');
   return ''+
     cat('vocab','단어','<div class="words">'+(words||'—')+'</div>')+
-    cat('grammar','어법',d.grammar||'—')+
+    cat('grammar','어법',formatGrammar(d.grammar))+
     cat('syntax','구조/구문 분석',d.syntax||'—')+
     '<div class="cat"><div class="clab lab-trans"><i></i>해석</div><div class="cbox box-trans">'+esc(d.kr||'')+'</div></div>'+
     cat('explain','쉬운 설명',d.explain||'—');
@@ -388,6 +392,16 @@ function toggle(i){const row=rowEls[i];const open=!row.classList.contains('open'
 hideBtn.addEventListener('click',()=>{const on=hideBtn.getAttribute('aria-pressed')==='true';hideBtn.setAttribute('aria-pressed',!on);document.querySelectorAll('.box-trans').forEach(t=>t.classList.toggle('hidden',!on));});
 rows.addEventListener('click',e=>{const t=e.target.closest('.box-trans.hidden');if(t){e.stopPropagation();t.classList.remove('hidden');}});
 function showErr(m){errBox.textContent=m;errBox.classList.remove('hide');}
+
+function formatGrammar(g){
+  if(g==null||g==="")return "—";
+  if(Array.isArray(g)){
+    if(g.length===0)return "—";
+    if(g.length===1)return String(g[0]);
+    return '<ol class="grammarList">'+g.map(item=>'<li>'+String(item)+'</li>').join('')+'</ol>';
+  }
+  return String(g);
+}
 function esc(s){return String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
 
 /* ============ Supabase 로그인 (카카오) ============ */

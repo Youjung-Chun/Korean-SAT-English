@@ -477,17 +477,31 @@ const logoutBtn = document.getElementById("logoutBtn");
 const userInfo = document.getElementById("userInfo");
 const userName = document.getElementById("userName");
 
-// 카카오 로그인 시작
-loginBtn.addEventListener("click", async () => {
-  const { error } = await sb.auth.signInWithOAuth({
-    provider: "kakao",
-    options: {
-      redirectTo: window.location.origin + window.location.pathname,
-      scopes: "profile_nickname profile_image",
-      queryParams: { scope: "profile_nickname profile_image" }
-    }
-  });
+// 로그인 버튼 클릭 → 모달 열기
+loginBtn.addEventListener("click", () => openLoginModal());
+
+async function signInWith(provider){
+  const opts = {
+    redirectTo: window.location.origin + window.location.pathname
+  };
+  if (provider === "kakao") {
+    opts.scopes = "profile_nickname profile_image";
+    opts.queryParams = { scope: "profile_nickname profile_image" };
+  }
+  const { error } = await sb.auth.signInWithOAuth({ provider, options: opts });
   if (error) alert("로그인 오류: " + error.message);
+}
+
+// 로그인 모달 열기/닫기 + provider 버튼
+const loginModalBackdrop = document.getElementById("loginModalBackdrop");
+const loginModalClose = document.getElementById("loginModalClose");
+function openLoginModal(){ loginModalBackdrop.style.display = "flex"; }
+function closeLoginModal(){ loginModalBackdrop.style.display = "none"; }
+loginModalClose.addEventListener("click", closeLoginModal);
+loginModalBackdrop.addEventListener("click", e => { if (e.target === loginModalBackdrop) closeLoginModal(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeLoginModal(); });
+document.querySelectorAll(".loginProviderBtn").forEach(btn => {
+  btn.addEventListener("click", () => signInWith(btn.dataset.provider));
 });
 
 // 로그아웃
@@ -870,7 +884,7 @@ drawerLogout.addEventListener("click", async () => {
 });
 drawerLoginBtn.addEventListener("click", () => {
   closeDrawer();
-  document.getElementById("loginBtn").click();
+  openLoginModal();
 });
 
 // 햄버거 버튼도 비로그인 상태에서 항상 보이게

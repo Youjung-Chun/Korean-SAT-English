@@ -207,6 +207,10 @@
           <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
           Google로 시작
         </button>
+        <button class="loginProviderBtn" data-provider="naver" style="background:#03C75A;color:#fff;border:0;border-radius:10px;padding:13px;font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16.273 12.845 7.376 0H0v24h7.726V11.156L16.624 24H24V0h-7.727v12.845z"/></svg>
+          네이버로 시작
+        </button>
       </div>
     </div>
   </div>
@@ -254,12 +258,6 @@
         <a href="mailto:contact@liel.app?subject=liel 문의&body=%0A%0A%0A---%0Aliel 사용 중 문의드립니다." class="drawerItem" style="text-decoration:none;width:100%;box-sizing:border-box;padding:12px 12px;font-size:14px;color:var(--ink);border-radius:8px;display:flex;align-items:center;gap:10px;">
           <span>✉️</span><span>문의하기</span>
         </a>
-        <a href="/terms.html" class="drawerItem" style="text-decoration:none;width:100%;box-sizing:border-box;padding:12px 12px;font-size:14px;color:var(--ink);border-radius:8px;display:flex;align-items:center;gap:10px;">
-          <span>📜</span><span>이용약관</span>
-        </a>
-        <a href="/privacy.html" class="drawerItem" style="text-decoration:none;width:100%;box-sizing:border-box;padding:12px 12px;font-size:14px;color:var(--ink);border-radius:8px;display:flex;align-items:center;gap:10px;">
-          <span>🔒</span><span>개인정보처리방침</span>
-        </a>
       </div>
 
       <!-- 로그아웃 -->
@@ -274,7 +272,7 @@
     <div id="drawerLoggedOut" style="display:none;flex:1;padding:40px 22px;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
       <div style="font-size:15px;color:var(--ink);font-weight:600;margin-bottom:8px;">로그인하고 더 편하게</div>
       <div style="font-size:13px;color:var(--sub);line-height:1.6;margin-bottom:20px;">지문을 저장하고 다시 볼 수 있어요.<br>하루 3지문까지 분석할 수 있어요.</div>
-      <button id="drawerLoginBtn" style="background:var(--primary);color:#fff;border:0;border-radius:10px;padding:11px 22px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;">로그인</button>
+      <button id="drawerLoginBtn" style="background:#FEE500;color:#191919;border:0;border-radius:10px;padding:11px 20px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;">카카오로 시작</button>
     </div>
   </aside>
 
@@ -292,8 +290,8 @@
 <div class="wrap">
   <!-- 로그인 상태 바 -->
   <div id="authBar" style="display:flex;align-items:center;justify-content:flex-end;padding:8px 0 4px;font-size:12px;color:var(--sub);">
-    <button id="loginBtn" style="background:none;color:var(--sub);border:1px solid var(--line);border-radius:8px;padding:6px 14px;font-family:inherit;font-size:12px;font-weight:500;cursor:pointer;display:none;">
-      로그인
+    <button id="loginBtn" style="background:#FEE500;color:#191919;border:0;border-radius:8px;padding:6px 11px;font-family:inherit;font-size:11.5px;font-weight:600;cursor:pointer;display:none;">
+      카카오로 시작
     </button>
     <div id="userInfo" style="display:none;align-items:center;gap:8px;">
       <span id="userName" style="color:var(--ink);font-weight:500;font-size:12px;"></span>
@@ -357,17 +355,6 @@
     <div class="rows" id="rows"></div>
   </section>
 
-
-
-  <!-- 하단 footer -->
-  <footer style="margin-top:32px;padding:20px 0;border-top:1px solid var(--line);text-align:center;font-size:12px;color:var(--faint);">
-    <a href="/terms.html" style="color:var(--sub);text-decoration:none;margin:0 8px;">이용약관</a>
-    <span style="color:var(--faint);">·</span>
-    <a href="/privacy.html" style="color:var(--sub);text-decoration:none;margin:0 8px;">개인정보처리방침</a>
-    <span style="color:var(--faint);">·</span>
-    <a href="mailto:contact@liel.app" style="color:var(--sub);text-decoration:none;margin:0 8px;">문의하기</a>
-    <div style="margin-top:8px;">© 2026 liel</div>
-  </footer>
 </div>
 
 <script>
@@ -520,6 +507,10 @@ const userName = document.getElementById("userName");
 loginBtn.addEventListener("click", () => openLoginModal());
 
 async function signInWith(provider){
+  if (provider === "naver") {
+    alert("네이버 로그인은 곧 지원될 예정이에요. 카카오 또는 구글로 로그인해주세요.");
+    return;
+  }
   const opts = {
     redirectTo: window.location.origin + window.location.pathname
   };

@@ -258,6 +258,12 @@
         <a href="mailto:contact@liel.app?subject=liel 문의&body=%0A%0A%0A---%0Aliel 사용 중 문의드립니다." class="drawerItem" style="text-decoration:none;width:100%;box-sizing:border-box;padding:12px 12px;font-size:14px;color:var(--ink);border-radius:8px;display:flex;align-items:center;gap:10px;">
           <span>✉️</span><span>문의하기</span>
         </a>
+        <a href="/terms.html" class="drawerItem" style="text-decoration:none;width:100%;box-sizing:border-box;padding:12px 12px;font-size:14px;color:var(--ink);border-radius:8px;display:flex;align-items:center;gap:10px;">
+          <span>📜</span><span>이용약관</span>
+        </a>
+        <a href="/privacy.html" class="drawerItem" style="text-decoration:none;width:100%;box-sizing:border-box;padding:12px 12px;font-size:14px;color:var(--ink);border-radius:8px;display:flex;align-items:center;gap:10px;">
+          <span>🔒</span><span>개인정보처리방침</span>
+        </a>
       </div>
 
       <!-- 로그아웃 -->
@@ -272,7 +278,7 @@
     <div id="drawerLoggedOut" style="display:none;flex:1;padding:40px 22px;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
       <div style="font-size:15px;color:var(--ink);font-weight:600;margin-bottom:8px;">로그인하고 더 편하게</div>
       <div style="font-size:13px;color:var(--sub);line-height:1.6;margin-bottom:20px;">지문을 저장하고 다시 볼 수 있어요.<br>하루 3지문까지 분석할 수 있어요.</div>
-      <button id="drawerLoginBtn" style="background:#FEE500;color:#191919;border:0;border-radius:10px;padding:11px 20px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;">카카오로 시작</button>
+      <button id="drawerLoginBtn" style="background:var(--primary);color:#fff;border:0;border-radius:10px;padding:11px 22px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;">로그인</button>
     </div>
   </aside>
 
@@ -290,8 +296,8 @@
 <div class="wrap">
   <!-- 로그인 상태 바 -->
   <div id="authBar" style="display:flex;align-items:center;justify-content:flex-end;padding:8px 0 4px;font-size:12px;color:var(--sub);">
-    <button id="loginBtn" style="background:#FEE500;color:#191919;border:0;border-radius:8px;padding:6px 11px;font-family:inherit;font-size:11.5px;font-weight:600;cursor:pointer;display:none;">
-      카카오로 시작
+    <button id="loginBtn" style="background:none;color:var(--sub);border:1px solid var(--line);border-radius:8px;padding:6px 14px;font-family:inherit;font-size:12px;font-weight:500;cursor:pointer;display:none;">
+      로그인
     </button>
     <div id="userInfo" style="display:none;align-items:center;gap:8px;">
       <span id="userName" style="color:var(--ink);font-weight:500;font-size:12px;"></span>
@@ -355,6 +361,17 @@
     <div class="rows" id="rows"></div>
   </section>
 
+
+
+  <!-- 하단 footer -->
+  <footer style="margin-top:32px;padding:20px 0;border-top:1px solid var(--line);text-align:center;font-size:12px;color:var(--faint);">
+    <a href="/terms.html" style="color:var(--sub);text-decoration:none;margin:0 8px;">이용약관</a>
+    <span style="color:var(--faint);">·</span>
+    <a href="/privacy.html" style="color:var(--sub);text-decoration:none;margin:0 8px;">개인정보처리방침</a>
+    <span style="color:var(--faint);">·</span>
+    <a href="mailto:contact@liel.app" style="color:var(--sub);text-decoration:none;margin:0 8px;">문의하기</a>
+    <div style="margin-top:8px;">© 2026 liel</div>
+  </footer>
 </div>
 
 <script>

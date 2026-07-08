@@ -524,6 +524,7 @@ const userName = document.getElementById("userName");
 loginBtn.addEventListener("click", () => openLoginModal());
 
 async function signInWith(provider){
+  if (provider === "custom:naver") { window.location.href = "/api/naver-login"; return; }
   const opts = {
     redirectTo: window.location.origin + window.location.pathname
   };

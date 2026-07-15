@@ -429,6 +429,10 @@ async function run(){
   const text=ta.value.trim();
   if(!text&&!pendingImage){showErr("지문을 붙여넣거나 캡처 이미지를 올려 주세요.");return;}
   if(!(await checkLimit()))return;
+  if(!currentUser){
+    const gc=await fetch("/api/guest-check",{method:"POST"}).then(r=>r.json()).catch(()=>({ok:true}));
+    if(gc.blocked){showErr(gc.error);return;}
+  }
   goBtn.disabled=true;goBtn.textContent="분석 중…";
   try{
     const exSys="너는 수능·내신 영어 문제를 다루는 전문가야. 입력(텍스트/이미지)에서 정보를 추출해 오직 JSON 객체만 출력. 마크다운 금지. 키:\n- passage: 읽기 본문을 원문 그대로 문장 단위 문자열 배열. 각주·한국어 지시문·요약문·선지는 제외.\n- question: 한국어 지시문과 (있다면) 빈칸 포함 요약문장을 합친 문자열. 없으면 \"\".\n- choices: 선택지가 있으면 [\"① ...\"] 배열, 없으면 [].";

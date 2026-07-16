@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>liel — 막힌 문장이, 또렷해진다</title>
+<meta name="description" content="분석자료가 없는 내신 영어 지문, liel이 문장마다 단어·어법·구조·해석·쉬운 설명까지 또렷하게 분석해드려요.">
+<link rel="icon" href="favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --primary:#3A63F0; --accent:#FFB020;
+    --ink:#171A21; --sub:#5B6472; --faint:#8A93A0;
+    --bg:#F6F7F9; --surface:#FFFFFF; --line:#E6E8EE; --field:#FBFBF9;
+    --kr:"Inter","Noto Sans KR",system-ui,sans-serif;
+    --shadow:0 10px 30px -18px rgba(23,26,33,.25);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --primary:#6E8BFF; --accent:#FFC24D;
+      --ink:#EAECF2; --sub:#9AA3B2; --faint:#6B7480;
+      --bg:#0F1218; --surface:#1A1E27; --line:#2A2F3A; --field:#171B24;
+      --shadow:0 10px 30px -18px rgba(0,0,0,.6);
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--kr);line-height:1.65;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:720px;margin:0 auto;padding:0 22px;}
+
+  /* 헤더 */
+  header{padding:22px 0 0;display:flex;align-items:center;justify-content:space-between;}
+  .logo img{height:44px;width:auto;display:block;}
+  .headerCta{background:none;border:1px solid var(--line);border-radius:9px;padding:8px 16px;font-family:inherit;font-size:13px;font-weight:500;color:var(--sub);cursor:pointer;text-decoration:none;}
+  .headerCta:hover{border-color:var(--primary);color:var(--primary);}
+
+  /* 히어로 */
+  .hero{padding:64px 0 48px;text-align:center;}
+  .hero h1{font-size:34px;font-weight:800;letter-spacing:-.02em;margin:0 0 14px;line-height:1.3;}
+  .hero h1 .hl{color:var(--primary);}
+  .hero p{font-size:15.5px;color:var(--sub);margin:0 0 30px;line-height:1.7;}
+  .ctaBtn{display:inline-block;background:var(--primary);color:#fff;border:0;border-radius:14px;padding:16px 36px;font-family:inherit;font-size:16px;font-weight:700;cursor:pointer;text-decoration:none;box-shadow:0 8px 22px -8px var(--primary);transition:transform .12s;}
+  .ctaBtn:hover{transform:translateY(-2px);}
+  .ctaSub{margin-top:12px;font-size:12.5px;color:var(--faint);}
+
+  /* 공감 섹션 */
+  .empathy{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:34px 28px;text-align:center;box-shadow:var(--shadow);}
+  .empathy h2{font-size:20px;font-weight:700;margin:0 0 10px;letter-spacing:-.01em;line-height:1.5;}
+  .empathy p{font-size:14px;color:var(--sub);margin:0;line-height:1.75;}
+
+  /* 섹션 공통 */
+  section{padding:44px 0 0;}
+  .secTitle{font-size:13px;font-weight:700;color:var(--primary);letter-spacing:.08em;text-transform:uppercase;margin:0 0 8px;text-align:center;}
+  .secHead{font-size:23px;font-weight:800;letter-spacing:-.015em;margin:0 0 26px;text-align:center;line-height:1.4;}
+
+  /* 기능 카드 */
+  .features{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media(max-width:520px){.features{grid-template-columns:1fr;}}
+  .feat{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px 20px;}
+  .feat .ico{font-size:26px;margin-bottom:10px;}
+  .feat h3{font-size:15.5px;font-weight:700;margin:0 0 6px;}
+  .feat p{font-size:13px;color:var(--sub);margin:0;line-height:1.65;}
+
+  /* 사용법 3단계 */
+  .steps{display:flex;flex-direction:column;gap:12px;}
+  .step{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px 20px;display:flex;align-items:center;gap:16px;}
+  .step .num{flex-shrink:0;width:34px;height:34px;border-radius:50%;background:var(--primary);color:#fff;font-weight:700;font-size:15px;display:flex;align-items:center;justify-content:center;}
+  .step .txt h3{font-size:15px;font-weight:700;margin:0 0 3px;}
+  .step .txt p{font-size:13px;color:var(--sub);margin:0;}
+
+  /* 분석 미리보기 mock */
+  .preview{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:var(--shadow);}
+  .pv-sentence{font-size:14.5px;font-weight:600;line-height:1.6;padding:12px 14px;background:color-mix(in srgb,var(--primary) 7%,transparent);border-radius:10px;margin-bottom:14px;}
+  .pv-row{display:flex;gap:10px;margin-bottom:11px;align-items:flex-start;}
+  .pv-tag{flex-shrink:0;font-size:10.5px;font-weight:700;padding:4px 9px;border-radius:6px;letter-spacing:.02em;}
+  .pv-tag.t1{background:#E8F0FE;color:#3A63F0;}
+  .pv-tag.t2{background:#F3E8FF;color:#8B5CF6;}
+  .pv-tag.t3{background:#FEF3E2;color:#D97706;}
+  .pv-tag.t4{background:#E7F7EF;color:#059669;}
+  @media (prefers-color-scheme: dark){
+    .pv-tag.t1{background:#1e2a4a;color:#8FA8FF;}
+    .pv-tag.t2{background:#2d2244;color:#B794F6;}
+    .pv-tag.t3{background:#3d2e14;color:#F0B45C;}
+    .pv-tag.t4{background:#12352a;color:#4ADE9C;}
+  }
+  .pv-txt{font-size:12.5px;color:var(--sub);line-height:1.6;}
+
+  /* 요금 */
+  .plans{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media(max-width:520px){.plans{grid-template-columns:1fr;}}
+  .plan{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:24px 20px;text-align:center;}
+  .plan.hot{border-color:var(--primary);position:relative;}
+  .plan .badge{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--primary);color:#fff;font-size:10.5px;font-weight:700;padding:3px 12px;border-radius:20px;}
+  .plan h3{font-size:15px;font-weight:700;margin:0 0 6px;}
+  .plan .price{font-size:22px;font-weight:800;margin:0 0 12px;}
+  .plan .price small{font-size:12px;font-weight:500;color:var(--faint);}
+  .plan ul{list-style:none;padding:0;margin:0;font-size:12.5px;color:var(--sub);line-height:2;}
+
+  /* 마지막 CTA */
+  .finalCta{text-align:center;padding:52px 0 20px;}
+  .finalCta h2{font-size:22px;font-weight:800;margin:0 0 20px;letter-spacing:-.01em;}
+
+  footer{margin-top:44px;padding:22px 0 36px;border-top:1px solid var(--line);text-align:center;font-size:12px;color:var(--faint);}
+  footer a{color:var(--sub);text-decoration:none;margin:0 8px;}
+  footer a:hover{color:var(--primary);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <a class="logo" href="/"><img src="logo-light.png" alt="liel"></a>
+    <a class="headerCta" href="/app.html">로그인</a>
+  </header>
+
+  <!-- 히어로 -->
+  <div class="hero">
+    <h1>막힌 문장이,<br><span class="hl">또렷해진다</span></h1>
+    <p>해설 없는 내신 영어 지문, 붙여넣거나 캡처만 하면<br>문장마다 단어·어법·구조·해석·쉬운 설명까지.</p>
+    <a class="ctaBtn" href="/app.html">무료로 시작하기</a>
+    <div class="ctaSub">가입 없이 바로 체험할 수 있어요</div>
+  </div>
+
+  <!-- 공감 -->
+  <div class="empathy">
+    <h2>분석자료가 없는 우리 학교 프린트,<br>혼자하니까 막막했죠?</h2>
+    <p>학원 해설지엔 우리 학교 부교재가 없고,<br>인터넷을 뒤져도 딱 맞는 분석은 안 나오고.<br>이제 liel에 붙여넣기만 하세요.</p>
+  </div>
+
+  <!-- 기능 -->
+  <section>
+    <p class="secTitle">Features</p>
+    <h2 class="secHead">문장 하나하나, 과외처럼</h2>
+    <div class="features">
+      <div class="feat">
+        <div class="ico">📖</div>
+        <h3>문장별 상세 분석</h3>
+        <p>단어, 어법 포인트, 구조·구문, 해석까지 문장 단위로 꼼꼼하게.</p>
+      </div>
+      <div class="feat">
+        <div class="ico">💬</div>
+        <h3>진짜 쉬운 설명</h3>
+        <p>비유로 풀어주는 친근한 설명. 해석만 읽고 막막했던 문장도 이해돼요.</p>
+      </div>
+      <div class="feat">
+        <div class="ico">📸</div>
+        <h3>캡처만 올려도 OK</h3>
+        <p>프린트를 사진 찍어 올리면 알아서 인식하고 분석해요.</p>
+      </div>
+      <div class="feat">
+        <div class="ico">📚</div>
+        <h3>저장하고 다시보기</h3>
+        <p>분석한 지문은 자동 저장. 시험 전에 다시 꺼내 복습하세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 분석 미리보기 -->
+  <section>
+    <p class="secTitle">Preview</p>
+    <h2 class="secHead">이런 식으로 분석해줘요</h2>
+    <div class="preview">
+      <div class="pv-sentence">Scientific research is hard.</div>
+      <div class="pv-row"><span class="pv-tag t1">단어</span><span class="pv-txt">research 연구 · hard 힘든, 어려운</span></div>
+      <div class="pv-row"><span class="pv-tag t2">어법</span><span class="pv-txt">주어(Scientific research) + be동사 + 형용사 보어의 2형식 문장</span></div>
+      <div class="pv-row"><span class="pv-tag t3">해석</span><span class="pv-txt">과학 연구는 힘들다.</span></div>
+      <div class="pv-row"><span class="pv-tag t4">쉬운 설명</span><span class="pv-txt">글의 첫 문장이야. 과학자가 되는 길은 편한 길이 아니라는 거지. 앞으로 나올 내용은 다 '왜 힘든지, 그런데도 왜 하는지'에 대한 이야기니까 이 문장을 기억해둬.</span></div>
+    </div>
+  </section>
+
+  <!-- 사용법 -->
+  <section>
+    <p class="secTitle">How it works</p>
+    <h2 class="secHead">3초면 시작할 수 있어요</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="num">1</div>
+        <div class="txt"><h3>지문 붙여넣기 또는 캡처 업로드</h3><p>교과서, 모의고사, 학교 프린트 다 좋아요.</p></div>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <div class="txt"><h3>분석하기 클릭</h3><p>AI가 문장을 하나하나 뜯어서 분석해요.</p></div>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <div class="txt"><h3>문장 눌러서 확인</h3><p>궁금한 문장만 골라서 펼쳐볼 수 있어요.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 요금 -->
+  <section>
+    <p class="secTitle">Pricing</p>
+    <h2 class="secHead">부담 없이 시작하세요</h2>
+    <div class="plans">
+      <div class="plan hot">
+        <div class="badge">지금 이용 가능</div>
+        <h3>무료</h3>
+        <div class="price">0원</div>
+        <ul>
+          <li>비회원 하루 1지문 체험</li>
+          <li>로그인하면 하루 3지문</li>
+          <li>최근 10개 지문 저장</li>
+        </ul>
+      </div>
+      <div class="plan">
+        <h3>프리미엄</h3>
+        <div class="price">준비 중 <small></small></div>
+        <ul>
+          <li>무제한 분석</li>
+          <li>무제한 저장</li>
+          <li>곧 만나요!</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 마지막 CTA -->
+  <div class="finalCta">
+    <h2>오늘 막힌 그 문장,<br>지금 바로 해결하세요</h2>
+    <a class="ctaBtn" href="/app.html">무료로 시작하기</a>
+  </div>
+
+  <footer>
+    <a href="/terms.html">이용약관</a> ·
+    <a href="/privacy.html">개인정보처리방침</a> ·
+    <a href="mailto:contact@liel.app">문의하기</a>
+    <div style="margin-top:8px;">© 2026 liel</div>
+  </footer>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// 로그인된 사용자는 자동으로 도구로 이동
+(async () => {
+  try {
+    const sb = window.supabase.createClient(
+      "https://ejalaqjscmyyprrouzrq.supabase.co",
+      "sb_publishable_PjtBPsgp7IK1FccsQ_3knw_uJI7HioA"
+    );
+    const { data: { session } } = await sb.auth.getSession();
+    if (session?.user) window.location.replace("/app.html");
+  } catch (e) { /* 실패해도 랜딩은 그대로 보여줌 */ }
+})();
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+</body>
+</html>

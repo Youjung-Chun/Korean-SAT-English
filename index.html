@@ -18,6 +18,12 @@
     --bg:#F6F7F9; --surface:#FFFFFF; --line:#E6E8EE; --field:#FBFBF9;
     --kr:"Inter","Noto Sans KR",system-ui,sans-serif;
     --shadow:0 10px 30px -18px rgba(23,26,33,.25);
+    --vocab:#2C6CB0; --vocab-bg:#EDF4FC;
+    --grammar:#6E51C8; --grammar-bg:#F3F0FC;
+    --syntax:#1F8C63; --syntax-bg:#EDF8F3;
+    --translation:#1F5468; --translation-bg:#EDF3F6;
+    --explain:#C4611A; --explain-bg:#FEF3EB;
+    --sel-bg:#EEF2FE; --sel-text:#1A3580;
   }
   @media (prefers-color-scheme: dark){
     :root{
@@ -25,6 +31,12 @@
       --ink:#EAECF2; --sub:#9AA3B2; --faint:#6B7480;
       --bg:#0F1218; --surface:#1A1E27; --line:#2A2F3A; --field:#171B24;
       --shadow:0 10px 30px -18px rgba(0,0,0,.6);
+      --vocab:#6EA3E0; --vocab-bg:#1A2535;
+      --grammar:#A98EEA; --grammar-bg:#1E1A30;
+      --syntax:#4EC49A; --syntax-bg:#152820;
+      --translation:#6E9DB5; --translation-bg:#131E24;
+      --explain:#E8965A; --explain-bg:#2A1A0E;
+      --sel-bg:#1A1F3A; --sel-text:#B0C4FF;
     }
   }
   *{box-sizing:border-box}
@@ -35,6 +47,293 @@
   header{padding:22px 0 0;display:flex;align-items:center;justify-content:space-between;}
   .logo img{height:44px;width:auto;display:block;}
   .headerCta{background:none;border:1px solid var(--line);border-radius:9px;padding:8px 16px;font-family:inherit;font-size:13px;font-weight:500;color:var(--sub);cursor:pointer;text-decoration:none;}
+  .headerCta:hover{border-color:var(--primary);color:var(--primary);}
+
+  /* 히어로 */
+  .hero{padding:64px 0 48px;text-align:center;}
+  .hero h1{font-size:34px;font-weight:800;letter-spacing:-.02em;margin:0 0 14px;line-height:1.3;}
+  .hero h1 .hl{color:var(--primary);}
+  .hero p{font-size:15.5px;color:var(--sub);margin:0 0 30px;line-height:1.7;}
+  .ctaBtn{display:inline-block;background:var(--primary);color:#fff;border:0;border-radius:14px;padding:16px 36px;font-family:inherit;font-size:16px;font-weight:700;cursor:pointer;text-decoration:none;box-shadow:0 8px 22px -8px var(--primary);transition:transform .12s;}
+  .ctaBtn:hover{transform:translateY(-2px);}
+  .ctaSub{margin-top:12px;font-size:12.5px;color:var(--faint);}
+
+  /* 공감 섹션 */
+  .empathy{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:34px 28px;text-align:center;box-shadow:var(--shadow);}
+  .empathy h2{font-size:20px;font-weight:700;margin:0 0 10px;letter-spacing:-.01em;line-height:1.5;}
+  .empathy p{font-size:14px;color:var(--sub);margin:0;line-height:1.75;}
+
+  /* 섹션 공통 */
+  section{padding:44px 0 0;}
+  .secTitle{font-size:13px;font-weight:700;color:var(--primary);letter-spacing:.08em;text-transform:uppercase;margin:0 0 8px;text-align:center;}
+  .secHead{font-size:23px;font-weight:800;letter-spacing:-.015em;margin:0 0 26px;text-align:center;line-height:1.4;}
+
+  /* 기능 카드 */
+  .features{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media(max-width:520px){.features{grid-template-columns:1fr;}}
+  .feat{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px 20px;}
+  .feat .ico{font-size:26px;margin-bottom:10px;}
+  .feat h3{font-size:15.5px;font-weight:700;margin:0 0 6px;}
+  .feat p{font-size:13px;color:var(--sub);margin:0;line-height:1.65;}
+
+  /* 사용법 3단계 */
+  .steps{display:flex;flex-direction:column;gap:12px;}
+  .step{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px 20px;display:flex;align-items:center;gap:16px;}
+  .step .num{flex-shrink:0;width:34px;height:34px;border-radius:50%;background:var(--primary);color:#fff;font-weight:700;font-size:15px;display:flex;align-items:center;justify-content:center;}
+  .step .txt h3{font-size:15px;font-weight:700;margin:0 0 3px;}
+  .step .txt p{font-size:13px;color:var(--sub);margin:0;}
+
+  /* 분석 미리보기 — 실제 앱과 동일한 스타일 */
+  .preview{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow);}
+  .pv-rowhead{display:flex;gap:11px;align-items:flex-start;background:var(--sel-bg);border-radius:12px;padding:14px;margin-bottom:12px;}
+  .pv-num{flex:none;width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font-size:12px;font-weight:700;background:var(--primary);color:#fff;}
+  .pv-stext{flex:1;font-size:14px;line-height:1.5;color:var(--sel-text);font-weight:500;}
+  .cat{margin-top:14px;}
+  .cat:first-child{margin-top:6px;}
+  .clab{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;margin-bottom:7px;}
+  .clab i{width:8px;height:8px;border-radius:3px;}
+  .cbox{border-radius:10px;padding:11px 13px;font-size:13.5px;line-height:1.62;color:var(--ink);}
+  .cbox code{font-family:"Inter",monospace;font-size:.94em;background:color-mix(in srgb,var(--ink) 7%,transparent);padding:1px 5px;border-radius:4px;}
+  .lab-vocab{color:var(--vocab);} .lab-vocab i{background:var(--vocab);} .box-vocab{background:var(--vocab-bg);}
+  .lab-grammar{color:var(--grammar);} .lab-grammar i{background:var(--grammar);} .box-grammar{background:var(--grammar-bg);}
+  .lab-syntax{color:var(--syntax);} .lab-syntax i{background:var(--syntax);} .box-syntax{background:var(--syntax-bg);}
+  .lab-trans{color:var(--translation);} .lab-trans i{background:var(--translation);}
+  .box-trans{background:var(--translation-bg);border-left:3px solid var(--translation);}
+  .lab-explain{color:var(--explain);} .lab-explain i{background:var(--explain);} .box-explain{background:var(--explain-bg);}
+  .words{display:flex;flex-direction:column;gap:5px;}
+  .word{display:flex;gap:8px;}
+  .word .w{font-weight:600;color:var(--vocab);min-width:92px;}
+  .word .m{color:var(--ink);}
+
+  /* 요금 */
+  .plans{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media(max-width:520px){.plans{grid-template-columns:1fr;}}
+  .plan{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:24px 20px;text-align:center;}
+  .plan.hot{border-color:var(--primary);position:relative;}
+  .plan .badge{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--primary);color:#fff;font-size:10.5px;font-weight:700;padding:3px 12px;border-radius:20px;}
+  .plan h3{font-size:15px;font-weight:700;margin:0 0 6px;}
+  .plan .price{font-size:22px;font-weight:800;margin:0 0 12px;}
+  .plan .price small{font-size:12px;font-weight:500;color:var(--faint);}
+  .plan ul{list-style:none;padding:0;margin:0;font-size:12.5px;color:var(--sub);line-height:2;}
+
+  /* 마지막 CTA */
+  .finalCta{text-align:center;padding:52px 0 20px;}
+  .finalCta h2{font-size:22px;font-weight:800;margin:0 0 20px;letter-spacing:-.01em;}
+
+  footer{margin-top:44px;padding:22px 0 36px;border-top:1px solid var(--line);text-align:center;font-size:12px;color:var(--faint);}
+  footer a{color:var(--sub);text-decoration:none;margin:0 8px;}
+  footer a:hover{color:var(--primary);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <a class="logo" href="/"><img src="logo-light.png" alt="liel"></a>
+    <button class="headerCta" id="loginBtn">로그인</button>
+  </header>
+
+  <!-- 히어로 -->
+  <div class="hero">
+    <h1>막힌 문장이,<br><span class="hl">또렷해진다</span></h1>
+    <p>해설 없는 내신 영어 지문, 붙여넣거나 캡처만 하면<br>문장마다 단어·어법·구조·해석·쉬운 설명까지.</p>
+    <a class="ctaBtn" href="/app.html">무료로 시작하기</a>
+    <div class="ctaSub">가입 없이 바로 체험할 수 있어요</div>
+  </div>
+
+  <!-- 공감 -->
+  <div class="empathy">
+    <h2>분석자료가 없는 우리 학교 프린트,<br>혼자하니까 막막했죠?</h2>
+    <p>분석자료 사이트에는 우리 학교 부교재가 없고,<br>인터넷을 뒤져도 딱 맞는 분석은 안 나오고.<br>이제 liel에 붙여넣기만 하세요.</p>
+  </div>
+
+  <!-- 기능 -->
+  <section>
+    <p class="secTitle">Features</p>
+    <h2 class="secHead">문장 하나하나, 과외처럼</h2>
+    <div class="features">
+      <div class="feat">
+        <div class="ico">📖</div>
+        <h3>문장별 상세 분석</h3>
+        <p>단어, 어법 포인트, 구조·구문, 해석까지 문장 단위로 꼼꼼하게.</p>
+      </div>
+      <div class="feat">
+        <div class="ico">💬</div>
+        <h3>진짜 쉬운 설명</h3>
+        <p>비유로 풀어주는 친근한 설명. 해석만 읽고 막막했던 문장도 이해돼요.</p>
+      </div>
+      <div class="feat">
+        <div class="ico">📸</div>
+        <h3>캡처만 올려도 OK</h3>
+        <p>프린트를 사진 찍어 올리면 알아서 인식하고 분석해요.</p>
+      </div>
+      <div class="feat">
+        <div class="ico">📚</div>
+        <h3>저장하고 다시보기</h3>
+        <p>분석한 지문은 자동 저장. 시험 전에 다시 꺼내 복습하세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 분석 미리보기 -->
+  <section>
+    <p class="secTitle">Preview</p>
+    <h2 class="secHead">이런 식으로 분석해줘요</h2>
+    <div class="preview">
+      <div class="pv-rowhead"><span class="pv-num">1</span><span class="pv-stext">The respect and approval of the small community of their peers is often their main reward.</span></div>
+      <div class="cat"><div class="clab lab-vocab"><i></i>단어</div><div class="cbox box-vocab"><div class="words">
+        <div class="word"><span class="w">respect</span><span class="m">존경</span></div>
+        <div class="word"><span class="w">approval</span><span class="m">인정, 승인</span></div>
+        <div class="word"><span class="w">peer</span><span class="m">동료, 또래</span></div>
+        <div class="word"><span class="w">reward</span><span class="m">보상</span></div>
+      </div></div></div>
+      <div class="cat"><div class="clab lab-grammar"><i></i>어법</div><div class="cbox box-grammar">주어가 <code>The respect and approval</code>로 길지만 핵심은 단수 취급이라 동사가 <code>is</code>예요. 시험에서 <code>are</code>로 바꿔 놓는 함정이 자주 나와요.</div></div>
+      <div class="cat"><div class="clab lab-syntax"><i></i>구조/구문</div><div class="cbox box-syntax">[The respect and approval]<small>주어</small> [of the small community of their peers]<small>수식</small> [is]<small>동사</small> [their main reward]<small>보어</small></div></div>
+      <div class="cat"><div class="clab lab-trans"><i></i>해석</div><div class="cbox box-trans">같은 분야 동료들이라는 작은 공동체의 존경과 인정이 그들의 주된 보상인 경우가 많다.</div></div>
+      <div class="cat"><div class="clab lab-explain"><i></i>쉬운 설명</div><div class="cbox box-explain">그럼 뭐가 남는 거야? 같이 연구하는 사람들끼리 '너 이거 잘했다'고 인정해주는 것 정도. 유튜브 구독자 100만 명이 알아봐주는 게 아니라, 같은 방에서 실험하는 열 명이 알아봐주는 정도인 거야.</div></div>
+    </div>
+  </section>
+
+  <!-- 사용법 -->
+  <section>
+    <p class="secTitle">How it works</p>
+    <h2 class="secHead">3초면 시작할 수 있어요</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="num">1</div>
+        <div class="txt"><h3>지문 붙여넣기 또는 캡처 업로드</h3><p>교과서, 모의고사, 학교 프린트 다 좋아요.</p></div>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <div class="txt"><h3>분석하기 클릭</h3><p>AI가 문장을 하나하나 뜯어서 분석해요.</p></div>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <div class="txt"><h3>문장 눌러서 확인</h3><p>궁금한 문장만 골라서 펼쳐볼 수 있어요.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 요금 -->
+  <section>
+    <p class="secTitle">Pricing</p>
+    <h2 class="secHead">부담 없이 시작하세요</h2>
+    <div class="plans">
+      <div class="plan hot">
+        <div class="badge">지금 이용 가능</div>
+        <h3>무료</h3>
+        <div class="price">0원</div>
+        <ul>
+          <li>비회원 하루 1지문 체험</li>
+          <li>로그인하면 하루 3지문</li>
+          <li>최근 10개 지문 저장</li>
+        </ul>
+      </div>
+      <div class="plan">
+        <h3>프리미엄</h3>
+        <div class="price">준비 중 <small></small></div>
+        <ul>
+          <li>무제한 분석</li>
+          <li>무제한 저장</li>
+          <li>곧 만나요!</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 마지막 CTA -->
+  <div class="finalCta">
+    <h2>오늘 막힌 그 문장,<br>지금 바로 해결하세요</h2>
+    <a class="ctaBtn" href="/app.html">무료로 시작하기</a>
+  </div>
+
+  <footer>
+    <a href="/terms.html">이용약관</a> ·
+    <a href="/privacy.html">개인정보처리방침</a> ·
+    <a href="mailto:contact@liel.app">문의하기</a>
+    <div style="margin-top:8px;">© 2026 liel</div>
+  </footer>
+
+
+  <!-- 로그인 방식 선택 모달 -->
+  <div id="loginModalBackdrop" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;">
+    <div style="background:var(--surface);border-radius:16px;max-width:340px;width:100%;overflow:hidden;">
+      <div style="padding:24px 24px 8px;text-align:center;position:relative;">
+        <button id="loginModalClose" aria-label="닫기" style="position:absolute;top:12px;right:14px;background:none;border:0;font-size:22px;color:var(--sub);cursor:pointer;padding:0;width:28px;height:28px;">×</button>
+        <h2 style="font-size:17px;font-weight:700;color:var(--ink);margin:0 0 6px;">로그인</h2>
+        <p style="font-size:12.5px;color:var(--sub);margin:0;line-height:1.55;">로그인하면 지문을 저장하고<br>하루 3지문까지 분석할 수 있어요.</p>
+      </div>
+      <div style="padding:16px 20px 22px;display:flex;flex-direction:column;gap:9px;">
+        <button class="loginProviderBtn" data-provider="kakao" style="background:#FEE500;color:#191919;border:0;border-radius:10px;padding:13px;font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3C6.48 3 2 6.48 2 10.8c0 2.79 1.86 5.24 4.68 6.62-.14.5-.51 1.83-.59 2.11-.09.35.13.35.28.26.11-.07 1.83-1.24 2.57-1.74.99.15 2.02.25 3.06.25 5.52 0 10-3.48 10-7.8S17.52 3 12 3z"/></svg>
+          카카오로 시작
+        </button>
+        <button class="loginProviderBtn" data-provider="google" style="background:#fff;color:#3c4043;border:1px solid #dadce0;border-radius:10px;padding:13px;font-family:inherit;font-size:13.5px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;">
+          <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Google로 시작
+        </button>
+        <button class="loginProviderBtn" data-provider="custom:naver" style="background:#03C75A;color:#fff;border:0;border-radius:10px;padding:13px;font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16.273 12.845 7.376 0H0v24h7.726V11.156L16.624 24H24V0h-7.727v12.845z"/></svg>
+          네이버로 시작
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const sb = window.supabase.createClient(
+  "https://ejalaqjscmyyprrouzrq.supabase.co",
+  "sb_publishable_PjtBPsgp7IK1FccsQ_3knw_uJI7HioA"
+);
+
+// 로그인된 사용자는 자동으로 도구로 이동
+(async () => {
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session?.user) window.location.replace("/app.html");
+  } catch (e) { /* 실패해도 랜딩은 그대로 보여줌 */ }
+})();
+
+// 로그인 모달
+const loginModalBackdrop = document.getElementById("loginModalBackdrop");
+document.getElementById("loginBtn").addEventListener("click", () => {
+  loginModalBackdrop.style.display = "flex";
+});
+document.getElementById("loginModalClose").addEventListener("click", () => {
+  loginModalBackdrop.style.display = "none";
+});
+loginModalBackdrop.addEventListener("click", e => {
+  if (e.target === loginModalBackdrop) loginModalBackdrop.style.display = "none";
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") loginModalBackdrop.style.display = "none";
+});
+
+// 소셜 로그인 (로그인 완료 후 app.html로)
+async function signInWith(provider){
+  if (provider === "custom:naver") { window.location.href = "/api/naver-login"; return; }
+  const { error } = await sb.auth.signInWithOAuth({
+    provider,
+    options: {
+      redirectTo: window.location.origin + "/app.html",
+      ...(provider === "kakao" ? {
+        scopes: "profile_nickname profile_image",
+        queryParams: { scope: "profile_nickname profile_image" }
+      } : {})
+    }
+  });
+  if (error) alert("로그인 오류: " + error.message);
+}
+document.querySelectorAll(".loginProviderBtn").forEach(btn => {
+  btn.addEventListener("click", () => signInWith(btn.dataset.provider));
+});
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+</body>
+</html>  .headerCta{background:none;border:1px solid var(--line);border-radius:9px;padding:8px 16px;font-family:inherit;font-size:13px;font-weight:500;color:var(--sub);cursor:pointer;text-decoration:none;}
   .headerCta:hover{border-color:var(--primary);color:var(--primary);}
 
   /* 히어로 */

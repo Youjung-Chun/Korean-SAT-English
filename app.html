@@ -161,6 +161,15 @@
   .vocabCard .actBtn{background:none;border:0;color:var(--faint);cursor:pointer;padding:5px;border-radius:6px;font-size:13px;line-height:1;flex-shrink:0;}
   .vocabCard .actBtn:hover{background:var(--bg);color:var(--sub);}
   .vocabBar{font-size:11.5px;color:var(--sub);margin-bottom:10px;}
+  .vocabGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:8px;}
+  .vocabWrap{max-width:860px;margin:0 auto;}
+  .quizChoice{display:block;width:100%;text-align:left;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:13px 15px;font-family:inherit;font-size:14px;color:var(--ink);cursor:pointer;transition:border-color .15s;}
+  .quizChoice:hover:not(:disabled){border-color:var(--primary);}
+  .quizChoice:disabled{cursor:default;}
+  .quizChoice.correct{border-color:var(--saved);background:color-mix(in srgb,var(--saved) 12%,transparent);font-weight:700;}
+  .quizChoice.wrong{border-color:#D4574E;background:color-mix(in srgb,#D4574E 10%,transparent);}
+  .quizBtn{background:var(--primary);color:#fff;border:0;border-radius:12px;padding:13px 22px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;}
+  .quizBtnGhost{background:none;color:var(--sub);border:1.5px solid var(--line);border-radius:12px;padding:13px 22px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;}
   .sk{height:11px;border-radius:5px;background:linear-gradient(90deg,var(--line),color-mix(in srgb,var(--line) 40%,transparent),var(--line));background-size:200% 100%;animation:sh 1.2s infinite;margin:8px 0;}
   @keyframes sh{to{background-position:-200% 0;}}
   .status{display:flex;align-items:center;gap:9px;margin:14px 0 4px;color:var(--sub);font-size:13px;}
@@ -297,6 +306,30 @@
       <button id="drawerLoginBtn" style="background:var(--primary);color:#fff;border:0;border-radius:10px;padding:11px 22px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;">로그인</button>
     </div>
   </aside>
+
+  <!-- 단어장 전체 화면 (v5.1: 모달 → 새 창 느낌의 풀스크린) -->
+  <section id="vocabScreen" aria-hidden="true" style="position:fixed;inset:0;background:var(--bg);z-index:150;transform:translateX(100%);transition:transform .25s ease;display:flex;flex-direction:column;">
+    <header style="display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line);background:var(--surface);flex-shrink:0;">
+      <button id="vocabBack" aria-label="뒤로" style="background:none;border:0;font-size:20px;color:var(--ink);cursor:pointer;padding:4px 8px;border-radius:8px;line-height:1;">←</button>
+      <h1 style="font-size:15px;font-weight:700;color:var(--ink);margin:0;">📖 내 단어장</h1>
+      <span id="vocabScreenCount" style="margin-left:auto;font-size:12px;color:var(--sub);"></span>
+    </header>
+    <div style="flex:1;overflow-y:auto;padding:16px 14px 40px;">
+      <div id="vocabList" class="vocabWrap"></div>
+    </div>
+  </section>
+
+  <!-- 단어 시험 전체 화면 (v5.2) -->
+  <section id="quizScreen" aria-hidden="true" style="position:fixed;inset:0;background:var(--bg);z-index:160;transform:translateX(100%);transition:transform .25s ease;display:flex;flex-direction:column;">
+    <header style="display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line);background:var(--surface);flex-shrink:0;">
+      <button id="quizBack" aria-label="뒤로" style="background:none;border:0;font-size:20px;color:var(--ink);cursor:pointer;padding:4px 8px;border-radius:8px;line-height:1;">←</button>
+      <h1 style="font-size:15px;font-weight:700;color:var(--ink);margin:0;">📝 단어 시험</h1>
+      <span id="quizProgress" style="margin-left:auto;font-size:12px;color:var(--sub);"></span>
+    </header>
+    <div style="flex:1;overflow-y:auto;padding:20px 16px 40px;">
+      <div id="quizBody" style="max-width:520px;margin:0 auto;"></div>
+    </div>
+  </section>
 
   <!-- 공지사항/FAQ 모달 -->
   <div id="modalBackdrop" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;">
@@ -973,8 +1006,8 @@ openDrawer = function(){
 function openModal(kind){
   closeDrawer();
   if (kind === "vocab") {
-    modalTitle.textContent = "내 단어장";
-    openVocabModal();
+    openVocabScreen();
+    return;
   } else if (kind === "notice") {
     modalTitle.textContent = "공지사항";
     modalBody.innerHTML = NOTICES.map(n =>
@@ -1082,35 +1115,60 @@ function markVocabInView(word, on){
   });
 }
 
-async function openVocabModal(){
-  modalBackdrop.style.display = "flex";
+const vocabScreen = document.getElementById("vocabScreen");
+const vocabListEl = document.getElementById("vocabList");
+const vocabScreenCount = document.getElementById("vocabScreenCount");
+
+function openVocabScreen(){
+  vocabScreen.style.transform = "translateX(0)";
+  vocabScreen.setAttribute("aria-hidden", "false");
+  refreshVocabScreen();
+}
+function closeVocabScreen(){
+  vocabScreen.style.transform = "translateX(100%)";
+  vocabScreen.setAttribute("aria-hidden", "true");
+}
+document.getElementById("vocabBack").addEventListener("click", closeVocabScreen);
+document.addEventListener("keydown", e => {
+  if (e.key !== "Escape") return;
+  // 시험 화면이 위에 떠 있으면 그것만 닫음
+  if (quizScreen.getAttribute("aria-hidden") === "false") { closeQuizScreen(); return; }
+  closeVocabScreen();
+});
+
+async function refreshVocabScreen(){
   if (!currentUser) {
-    modalBody.innerHTML = '<div class="savedEmpty">로그인하면 모르는 단어를 담아둘 수 있어요.</div>';
+    vocabScreenCount.textContent = "";
+    vocabListEl.innerHTML = '<div class="savedEmpty">로그인하면 모르는 단어를 담아둘 수 있어요.</div>';
     return;
   }
-  modalBody.innerHTML = '<div class="vocabBar">불러오는 중…</div>';
+  vocabListEl.innerHTML = '<div class="vocabBar">불러오는 중…</div>';
   const { data, error } = await sb.from("vocab")
     .select("id, word, meaning, source_sentence, created_at")
     .eq("user_id", currentUser.id)
     .order("created_at", { ascending: false });
   if (error) {
     console.error("단어장 불러오기 실패:", error);
-    modalBody.innerHTML = '<div class="savedEmpty">단어장을 불러오지 못했어요.</div>';
+    vocabListEl.innerHTML = '<div class="savedEmpty">단어장을 불러오지 못했어요.</div>';
     return;
   }
   renderVocabList(data || []);
 }
 
 function renderVocabList(items){
+  vocabItems = items;
   vocabSet = new Set(items.map(r => vocabKey(r.word)));
   updateVocabCount();
+  vocabScreenCount.textContent = items.length + " / " + VOCAB_LIMIT + "개";
   if (!items.length) {
-    modalBody.innerHTML = '<div class="savedEmpty">아직 담아둔 단어가 없어요.<br>분석 결과에서 모르는 단어를 누르면 여기 들어와요.</div>';
+    vocabListEl.innerHTML = '<div class="savedEmpty">아직 담아둔 단어가 없어요.<br>분석 결과에서 모르는 단어를 누르면 여기 들어와요.</div>';
     return;
   }
-  modalBody.innerHTML =
-    '<div class="vocabBar">' + items.length + " / " + VOCAB_LIMIT + '개 담아둠</div>' +
-    '<div style="display:flex;flex-direction:column;gap:8px;">' +
+  vocabListEl.innerHTML =
+    (items.length >= 4
+      ? '<button id="quizStartBtn" class="quizBtn" style="width:100%;margin-bottom:12px;">📝 시험 보기</button>'
+      : '<div class="vocabBar">단어를 4개 이상 담으면 시험을 볼 수 있어요!</div>') +
+    '<div class="vocabGrid">' +
     items.map(it =>
       '<div class="vocabCard" data-id="' + it.id + '">' +
         '<div class="info">' +
@@ -1124,7 +1182,7 @@ function renderVocabList(items){
     '</div>';
 }
 
-modalBody.addEventListener("click", async e => {
+vocabListEl.addEventListener("click", async e => {
   const btn = e.target.closest('.vocabCard [data-act="del"]');
   if (!btn) return;
   const card = btn.closest(".vocabCard");
@@ -1132,9 +1190,13 @@ modalBody.addEventListener("click", async e => {
   const { error } = await sb.from("vocab").delete().eq("id", card.dataset.id);
   if (error) { alert("빼기 실패: " + error.message); return; }
   vocabSet.delete(vocabKey(word));
+  vocabItems = vocabItems.filter(v => String(v.id) !== String(card.dataset.id));
   markVocabInView(word, false);
   updateVocabCount();
-  openVocabModal();
+  card.remove();
+  vocabScreenCount.textContent = vocabSet.size + " / " + VOCAB_LIMIT + "개";
+  // 4개 밑으로 내려가면 시험 버튼 상태도 갱신돼야 하므로 다시 그림
+  if (vocabItems.length < 4) renderVocabList(vocabItems);
 });
 
 // 로그인 상태 바뀌면 단어장도 다시 불러옴
@@ -1145,6 +1207,117 @@ renderAuth = function(user){
   loadVocab();
 };
 sb.auth.getSession().then(({data:{session}}) => renderAuth(session?.user || null));
+
+
+
+/* ============ 단어 시험 (v5.2): 영어 단어 → 한국어 뜻 4지선다 ============ */
+const QUIZ_LEN = 10;   // 한 라운드 문제 수 (단어가 적으면 있는 만큼)
+const quizScreen = document.getElementById("quizScreen");
+const quizBody = document.getElementById("quizBody");
+const quizProgress = document.getElementById("quizProgress");
+let vocabItems = [];   // 단어장 목록 캐시 (renderVocabList 에서 채움)
+let quizItems = [], quizIdx = 0, quizScore = 0, quizWrong = [], quizAnswered = false;
+
+function shuffle(arr){
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+vocabListEl.addEventListener("click", e => {
+  if (e.target.closest("#quizStartBtn")) startQuiz();
+});
+
+function startQuiz(){
+  quizItems = shuffle(vocabItems).slice(0, QUIZ_LEN);
+  quizIdx = 0; quizScore = 0; quizWrong = [];
+  quizScreen.style.transform = "translateX(0)";
+  quizScreen.setAttribute("aria-hidden", "false");
+  showQuizQuestion();
+}
+function closeQuizScreen(){
+  quizScreen.style.transform = "translateX(100%)";
+  quizScreen.setAttribute("aria-hidden", "true");
+}
+document.getElementById("quizBack").addEventListener("click", closeQuizScreen);
+
+function showQuizQuestion(){
+  quizAnswered = false;
+  const it = quizItems[quizIdx];
+  quizProgress.textContent = (quizIdx + 1) + " / " + quizItems.length;
+  // 오답 보기: 내 단어장의 다른 단어 뜻에서 뽑음 (정답과 같은 뜻·중복 제외)
+  const pool = [...new Set(vocabItems.filter(v => vocabKey(v.word) !== vocabKey(it.word)).map(v => v.meaning).filter(m => m && m !== it.meaning))];
+  const choices = shuffle([it.meaning, ...shuffle(pool).slice(0, 3)]);
+  quizBody.innerHTML =
+    '<div style="text-align:center;margin:16px 0 24px;">' +
+      '<div style="font-size:12px;color:var(--sub);margin-bottom:10px;">이 단어의 뜻은?</div>' +
+      '<div style="font-size:27px;font-weight:800;color:var(--vocab);word-break:break-word;">' + esc(it.word) + '</div>' +
+    '</div>' +
+    '<div style="display:flex;flex-direction:column;gap:9px;">' +
+      choices.map(c => '<button class="quizChoice">' + esc(c) + '</button>').join("") +
+    '</div>' +
+    '<div id="quizNextWrap" style="margin-top:16px;"></div>';
+}
+
+quizBody.addEventListener("click", e => {
+  const choice = e.target.closest(".quizChoice");
+  if (choice) { answerQuiz(choice); return; }
+  if (e.target.closest("#quizNextBtn")) {
+    quizIdx++;
+    if (quizIdx < quizItems.length) showQuizQuestion(); else showQuizResult();
+    return;
+  }
+  if (e.target.closest("#quizRetryBtn")) { startQuiz(); return; }
+  if (e.target.closest("#quizExitBtn")) { closeQuizScreen(); return; }
+});
+
+function answerQuiz(btn){
+  if (quizAnswered) return;
+  quizAnswered = true;
+  const it = quizItems[quizIdx];
+  const right = btn.textContent === it.meaning;
+  if (right) quizScore++; else quizWrong.push(it);
+  quizBody.querySelectorAll(".quizChoice").forEach(b => {
+    b.disabled = true;
+    if (b.textContent === it.meaning) b.classList.add("correct");
+    else if (b === btn) b.classList.add("wrong");
+  });
+  const last = quizIdx === quizItems.length - 1;
+  document.getElementById("quizNextWrap").innerHTML =
+    '<button id="quizNextBtn" class="quizBtn" style="width:100%;">' + (last ? "결과 보기" : "다음 문제") + '</button>';
+}
+
+function showQuizResult(){
+  quizProgress.textContent = "";
+  const total = quizItems.length;
+  const msg = quizScore === total ? "완벽해! 다 맞았어 🎉"
+    : quizScore >= total * 0.7 ? "잘했어! 틀린 것만 다시 보자 💪"
+    : "괜찮아, 자꾸 보면 늘어 🌱";
+  quizBody.innerHTML =
+    '<div style="text-align:center;margin:20px 0 24px;">' +
+      '<div style="font-size:12px;color:var(--sub);">결과</div>' +
+      '<div style="font-size:34px;font-weight:800;color:var(--ink);margin:6px 0;">' + quizScore + ' / ' + total + '</div>' +
+      '<div style="font-size:13.5px;color:var(--sub);">' + msg + '</div>' +
+    '</div>' +
+    (quizWrong.length
+      ? '<div class="vocabBar">📌 틀린 단어 — 한 번 더 보고 가자</div>' +
+        '<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">' +
+        quizWrong.map(it =>
+          '<div class="vocabCard"><div class="info">' +
+            '<div class="vw">' + esc(it.word) + '</div>' +
+            '<div class="vm">' + esc(it.meaning || "") + '</div>' +
+            (it.source_sentence ? '<div class="vs">' + esc(it.source_sentence) + '</div>' : '') +
+          '</div></div>'
+        ).join("") + '</div>'
+      : '') +
+    '<div style="display:flex;gap:8px;">' +
+      '<button id="quizRetryBtn" class="quizBtn" style="flex:1;">다시 풀기</button>' +
+      '<button id="quizExitBtn" class="quizBtnGhost" style="flex:1;">단어장으로</button>' +
+    '</div>';
+}
 
 </script>
 </body>

@@ -168,6 +168,11 @@
   .quizChoice:disabled{cursor:default;}
   .quizChoice.correct{border-color:var(--saved);background:color-mix(in srgb,var(--saved) 12%,transparent);font-weight:700;}
   .quizChoice.wrong{border-color:#D4574E;background:color-mix(in srgb,#D4574E 10%,transparent);}
+  .grpTag{display:inline-flex;align-items:center;gap:3px;font-size:10.5px;color:var(--primary);background:color-mix(in srgb,var(--primary) 9%,transparent);border-radius:6px;padding:1px 6px;vertical-align:middle;}
+  .groupChip{display:inline-flex;align-items:center;gap:5px;background:var(--surface);border:1.5px solid var(--line);border-radius:999px;padding:6px 12px;font-family:inherit;font-size:12px;font-weight:600;color:var(--sub);cursor:pointer;}
+  .groupChip span{font-weight:400;color:var(--faint);font-size:11px;}
+  .groupChip.on{border-color:var(--primary);color:var(--primary);background:color-mix(in srgb,var(--primary) 8%,transparent);}
+  .groupChip.on span{color:var(--primary);}
   .quizBtn{background:var(--primary);color:#fff;border:0;border-radius:12px;padding:13px 22px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;}
   .quizBtnGhost{background:none;color:var(--sub);border:1.5px solid var(--line);border-radius:12px;padding:13px 22px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;}
   .sk{height:11px;border-radius:5px;background:linear-gradient(90deg,var(--line),color-mix(in srgb,var(--line) 40%,transparent),var(--line));background-size:200% 100%;animation:sh 1.2s infinite;margin:8px 0;}
@@ -266,6 +271,8 @@
           <h2 style="font-size:13px;font-weight:700;color:var(--ink);margin:0;">📚 내 저장한 지문</h2>
           <span id="drawerCount" style="font-size:11px;color:var(--sub);"></span>
         </div>
+        <select id="drawerGroupFilter" style="display:none;width:100%;margin-bottom:8px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--field);color:var(--ink);font-family:inherit;font-size:12.5px;"></select>
+        <datalist id="groupOptions"></datalist>
         <div id="savedList" style="display:flex;flex-direction:column;gap:8px;"></div>
       </div>
 
@@ -477,6 +484,7 @@ async function run(){
   const text=ta.value.trim();
   if(!text&&!pendingImage){showErr("지문을 붙여넣거나 캡처 이미지를 올려 주세요.");return;}
   if(!(await checkLimit()))return;
+  currentPassageId=null;currentPassageGroup=null;
   goBtn.disabled=true;goBtn.textContent="분석 중…";
   try{
     const exSys="너는 수능·내신 영어 문제를 다루는 전문가야. 입력(텍스트/이미지)에서 정보를 추출해 오직 JSON 객체만 출력. 마크다운 금지. 키:\n- passage: 읽기 본문을 원문 그대로 문장 단위 문자열 배열. 각주·한국어 지시문·요약문·선지는 제외.\n- question: 한국어 지시문과 (있다면) 빈칸 포함 요약문장을 합친 문자열. 없으면 \"\".\n- choices: 선택지가 있으면 [\"① ...\"] 배열, 없으면 [].";
@@ -564,7 +572,7 @@ function formatGrammar(g){
   }
   return String(g);
 }
-function esc(s){return String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 
 /* ============ Supabase 로그인 (카카오) ============ */
 const SB_URL = "https://ejalaqjscmyyprrouzrq.supabase.co";
@@ -657,33 +665,66 @@ renderAuth = function(user) {
 // 로그인 상태 재확인 (렌더 함수 덮어썼으니 다시 반영)
 sb.auth.getSession().then(({data:{session}}) => renderAuth(session?.user || null));
 
+// 현재 보고 있는 지문 (단어 저장 시 그룹 상속·지문 연결용)
+let currentPassageId = null, currentPassageGroup = null;
+
 // 지문 저장 (분석 후 자동 호출)
 async function savePassage(passageArr, analysisResults, overview) {
   if (!currentUser) return; // 비로그인 → 저장 안 함
   const fullText = passageArr.map(s => s.en || s).join(" ");
   const autoTitle = fullText.slice(0, 40) + (fullText.length > 40 ? "…" : "");
   const analysis = { sentences: analysisResults, overview: overview || null };
-  const { error } = await sb.from("passages").insert({
+  const { data: savedRow, error } = await sb.from("passages").insert({
     user_id: currentUser.id,
     passage_text: fullText,
     analysis: analysis,
     title: autoTitle
-  });
+  }).select("id, group_name").single();
   if (error) { console.error("저장 실패:", error); return; }
+  currentPassageId = savedRow ? savedRow.id : null;
+  currentPassageGroup = savedRow ? (savedRow.group_name || null) : null;
   loadSavedList();
+}
+
+// 그룹 목록 (서랍 필터·이름 자동완성용)
+let passageGroups = [];
+async function loadPassageGroups() {
+  const { data } = await sb.from("passages")
+    .select("group_name")
+    .eq("user_id", currentUser.id)
+    .not("group_name", "is", null);
+  passageGroups = [...new Set((data || []).map(r => r.group_name))].sort();
+  const sel = document.getElementById("drawerGroupFilter");
+  const cur = sel.value;
+  if (!passageGroups.length) { sel.style.display = "none"; sel.innerHTML = ""; }
+  else {
+    sel.style.display = "block";
+    sel.innerHTML = '<option value="">📁 전체 지문</option>' +
+      passageGroups.map(g => '<option value="' + esc(g) + '">📁 ' + esc(g) + '</option>').join("") +
+      '<option value="__none__">그룹 없는 지문</option>';
+    if ([...sel.options].some(o => o.value === cur)) sel.value = cur;
+  }
+  document.getElementById("groupOptions").innerHTML =
+    passageGroups.map(g => '<option value="' + esc(g) + '">').join("");
 }
 
 // 저장 목록 불러오기
 async function loadSavedList() {
   if (!currentUser) return;
-  const { data, error } = await sb.from("passages")
-    .select("id, title, created_at, analysis, passage_text")
+  await loadPassageGroups();
+  let q = sb.from("passages")
+    .select("id, title, created_at, group_name")
     .eq("user_id", currentUser.id)
     .order("created_at", { ascending: false })
     .limit(10);
+  const f = document.getElementById("drawerGroupFilter").value;
+  if (f === "__none__") q = q.is("group_name", null);
+  else if (f) q = q.eq("group_name", f);
+  const { data, error } = await q;
   if (error) { console.error("불러오기 실패:", error); return; }
   renderSavedList(data || []);
 }
+document.getElementById("drawerGroupFilter").addEventListener("change", loadSavedList);
 
 function renderSavedList(items) {
   if (savedCount) savedCount.textContent = items.length + "개";
@@ -713,6 +754,11 @@ savedList.addEventListener("click", async e => {
   const id = card.dataset.id;
   const act = e.target.dataset.act;
 
+  if (act === "group") {
+    e.stopPropagation();
+    startGroupEdit(card, id);
+    return;
+  }
   if (act === "edit") {
     e.stopPropagation();
     startEdit(card, id);
@@ -749,9 +795,35 @@ function startEdit(card, id) {
   input.addEventListener("keydown", e => { if (e.key === "Enter") save(); if (e.key === "Escape") loadSavedList(); });
 }
 
+// 그룹 지정 (📁 버튼) — 기존 그룹 이름은 datalist 로 자동완성
+function startGroupEdit(card, id) {
+  const info = card.querySelector(".info");
+  if (!info) return;
+  const form = document.createElement("div");
+  form.className = "savedEditForm";
+  form.innerHTML = '<input type="text" list="groupOptions" value="' + esc(card.dataset.group || "") + '" maxlength="30" placeholder="그룹 이름 (예: 6모, 부교재)"><button>저장</button>';
+  info.replaceWith(form);
+  const input = form.querySelector("input");
+  input.focus(); input.select();
+  const save = async () => {
+    const g = input.value.trim() || null;
+    const { error } = await sb.from("passages").update({ group_name: g }).eq("id", id);
+    if (error) { alert("그룹 저장 실패: " + error.message); loadSavedList(); return; }
+    // 이 지문에서 담은 단어들도 같은 그룹으로 따라감
+    const { error: vErr } = await sb.from("vocab").update({ group_name: g }).eq("passage_id", id);
+    if (vErr) console.error("단어 그룹 갱신 실패:", vErr);
+    if (String(currentPassageId) === String(id)) currentPassageGroup = g;
+    loadSavedList();
+  };
+  form.querySelector("button").addEventListener("click", save);
+  input.addEventListener("keydown", e => { if (e.key === "Enter") save(); if (e.key === "Escape") loadSavedList(); });
+}
+
 async function openSaved(id) {
   const { data, error } = await sb.from("passages").select("*").eq("id", id).single();
   if (error) { alert("불러오기 실패: " + error.message); return; }
+  currentPassageId = data.id;
+  currentPassageGroup = data.group_name || null;
   const sentences = (data.analysis?.sentences || []).map((s, i) => ({
     en: s.en, kr: s.kr, words: s.words, grammar: s.grammar, explain: s.explain
   }));
@@ -807,17 +879,21 @@ renderSavedList = function(items) {
   drawerCount.textContent = items.length + "개 저장됨";
   const savedList = document.getElementById("savedList");
   if (items.length === 0) {
-    savedList.innerHTML = '<div class="savedEmpty">아직 저장된 지문이 없어요.<br>지문을 분석하면 여기에 자동 저장돼요.</div>';
+    const f = document.getElementById("drawerGroupFilter").value;
+    savedList.innerHTML = '<div class="savedEmpty">' +
+      (f ? "이 그룹에 지문이 없어요." : "아직 저장된 지문이 없어요.<br>지문을 분석하면 여기에 자동 저장돼요.") +
+      '</div>';
     return;
   }
   savedList.innerHTML = items.map(item => {
     const dateStr = new Date(item.created_at).toLocaleDateString("ko-KR", {month:"long", day:"numeric"});
-    return '<div class="savedCard" data-id="' + item.id + '">' +
+    return '<div class="savedCard" data-id="' + item.id + '" data-group="' + esc(item.group_name || "") + '">' +
       '<div class="info">' +
         '<div class="ttl">' + esc(item.title || "제목 없음") + '</div>' +
-        '<div class="date">' + dateStr + '</div>' +
+        '<div class="date">' + dateStr + (item.group_name ? ' <span class="grpTag">📁 ' + esc(item.group_name) + '</span>' : '') + '</div>' +
       '</div>' +
       '<div class="acts">' +
+        '<button class="actBtn" data-act="group" title="그룹 지정">📁</button>' +
         '<button class="actBtn" data-act="edit" title="제목 수정">✏️</button>' +
         '<button class="actBtn" data-act="del" title="삭제">🗑️</button>' +
       '</div>' +
@@ -1090,7 +1166,9 @@ async function saveVocab(el, word, meaning, source){
     user_id: currentUser.id,
     word: word,
     meaning: meaning,
-    source_sentence: source || null
+    source_sentence: source || null,
+    group_name: currentPassageGroup,
+    passage_id: currentPassageId
   });
   // 23505 = unique 위반(다른 탭에서 이미 저장) → 저장된 걸로 취급
   if (error && error.code !== "23505") {
@@ -1144,7 +1222,7 @@ async function refreshVocabScreen(){
   }
   vocabListEl.innerHTML = '<div class="vocabBar">불러오는 중…</div>';
   const { data, error } = await sb.from("vocab")
-    .select("id, word, meaning, source_sentence, created_at")
+    .select("id, word, meaning, source_sentence, group_name, created_at")
     .eq("user_id", currentUser.id)
     .order("created_at", { ascending: false });
   if (error) {
@@ -1153,6 +1231,17 @@ async function refreshVocabScreen(){
     return;
   }
   renderVocabList(data || []);
+}
+
+// 단어장 그룹 필터: "" = 전체, "__none__" = 그룹 없음, 그 외 = 그룹 이름
+let vocabGroupFilter = "";
+function getVocabView(){
+  if (vocabGroupFilter === "__none__") return vocabItems.filter(i => !i.group_name);
+  if (vocabGroupFilter) return vocabItems.filter(i => i.group_name === vocabGroupFilter);
+  return vocabItems;
+}
+function vocabChip(v, label, n){
+  return '<button class="groupChip' + (vocabGroupFilter === v ? " on" : "") + '" data-group="' + esc(v) + '">' + esc(label) + ' <span>' + n + '</span></button>';
 }
 
 function renderVocabList(items){
@@ -1164,22 +1253,37 @@ function renderVocabList(items){
     vocabListEl.innerHTML = '<div class="savedEmpty">아직 담아둔 단어가 없어요.<br>분석 결과에서 모르는 단어를 누르면 여기 들어와요.</div>';
     return;
   }
-  vocabListEl.innerHTML =
-    (items.length >= 4
-      ? '<button id="quizStartBtn" class="quizBtn" style="width:100%;margin-bottom:12px;">📝 시험 보기</button>'
-      : '<div class="vocabBar">단어를 4개 이상 담으면 시험을 볼 수 있어요!</div>') +
-    '<div class="vocabGrid">' +
-    items.map(it =>
-      '<div class="vocabCard" data-id="' + it.id + '">' +
-        '<div class="info">' +
-          '<div class="vw">' + esc(it.word) + '</div>' +
-          '<div class="vm">' + esc(it.meaning || "") + '</div>' +
-          (it.source_sentence ? '<div class="vs">' + esc(it.source_sentence) + '</div>' : '') +
-        '</div>' +
-        '<button class="actBtn" data-act="del" title="빼기">🗑️</button>' +
+  const groups = [...new Set(items.map(i => i.group_name).filter(Boolean))].sort();
+  // 필터가 가리키는 그룹이 사라졌으면 전체로 복귀
+  if (vocabGroupFilter && vocabGroupFilter !== "__none__" && !groups.includes(vocabGroupFilter)) vocabGroupFilter = "";
+  if (vocabGroupFilter === "__none__" && !items.some(i => !i.group_name)) vocabGroupFilter = "";
+  const view = getVocabView();
+  const chips = groups.length
+    ? '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">' +
+        vocabChip("", "전체", items.length) +
+        groups.map(g => vocabChip(g, "📁 " + g, items.filter(i => i.group_name === g).length)).join("") +
+        (items.some(i => !i.group_name) ? vocabChip("__none__", "그룹 없음", items.filter(i => !i.group_name).length) : "") +
       '</div>'
-    ).join("") +
-    '</div>';
+    : "";
+  vocabListEl.innerHTML =
+    chips +
+    (view.length >= 4
+      ? '<button id="quizStartBtn" class="quizBtn" style="width:100%;margin-bottom:12px;">📝 시험 보기' + (vocabGroupFilter && vocabGroupFilter !== "__none__" ? " — " + esc(vocabGroupFilter) : "") + '</button>'
+      : '<div class="vocabBar">단어를 4개 이상 담으면 시험을 볼 수 있어요!</div>') +
+    (view.length
+      ? '<div class="vocabGrid">' +
+        view.map(it =>
+          '<div class="vocabCard" data-id="' + it.id + '">' +
+            '<div class="info">' +
+              '<div class="vw">' + esc(it.word) + (it.group_name && !vocabGroupFilter ? ' <span class="grpTag">📁 ' + esc(it.group_name) + '</span>' : '') + '</div>' +
+              '<div class="vm">' + esc(it.meaning || "") + '</div>' +
+              (it.source_sentence ? '<div class="vs">' + esc(it.source_sentence) + '</div>' : '') +
+            '</div>' +
+            '<button class="actBtn" data-act="del" title="빼기">🗑️</button>' +
+          '</div>'
+        ).join("") +
+        '</div>'
+      : '<div class="savedEmpty">이 그룹에 단어가 없어요.</div>');
 }
 
 vocabListEl.addEventListener("click", async e => {
@@ -1192,11 +1296,8 @@ vocabListEl.addEventListener("click", async e => {
   vocabSet.delete(vocabKey(word));
   vocabItems = vocabItems.filter(v => String(v.id) !== String(card.dataset.id));
   markVocabInView(word, false);
-  updateVocabCount();
-  card.remove();
-  vocabScreenCount.textContent = vocabSet.size + " / " + VOCAB_LIMIT + "개";
-  // 4개 밑으로 내려가면 시험 버튼 상태도 갱신돼야 하므로 다시 그림
-  if (vocabItems.length < 4) renderVocabList(vocabItems);
+  // 칩 개수·시험 버튼 상태까지 한 번에 갱신
+  renderVocabList(vocabItems);
 });
 
 // 로그인 상태 바뀌면 단어장도 다시 불러옴
@@ -1228,11 +1329,14 @@ function shuffle(arr){
 }
 
 vocabListEl.addEventListener("click", e => {
+  const chip = e.target.closest(".groupChip");
+  if (chip) { vocabGroupFilter = chip.dataset.group; renderVocabList(vocabItems); return; }
   if (e.target.closest("#quizStartBtn")) startQuiz();
 });
 
 function startQuiz(){
-  quizItems = shuffle(vocabItems).slice(0, QUIZ_LEN);
+  // 그룹을 걸러둔 상태면 그 그룹 단어로만 시험
+  quizItems = shuffle(getVocabView()).slice(0, QUIZ_LEN);
   quizIdx = 0; quizScore = 0; quizWrong = [];
   quizScreen.style.transform = "translateX(0)";
   quizScreen.setAttribute("aria-hidden", "false");

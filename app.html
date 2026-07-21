@@ -941,6 +941,15 @@ async function checkLimit(){
       showErr("비회원은 하루 "+GUEST_LIMIT+"회 체험할 수 있어요. 카카오로 로그인하면 하루 "+FREE_LIMIT+"회까지 쓸 수 있어요!");
       return false;
     }
+    // 2차 방어: 같은 네트워크(IP)에서 하루 5회 — 시크릿 모드 우회 차단 (guest-check.js)
+    try{
+      const r=await fetch("/api/guest-check",{method:"POST"});
+      if(r.status===429){
+        const d=await r.json().catch(()=>({}));
+        showErr(d.error||"이 네트워크에서 오늘 이용 가능한 체험 횟수를 모두 사용했어요. 로그인하면 계속 이용할 수 있어요!");
+        return false;
+      }
+    }catch(e){ /* 서버 오류 시 차단 대신 통과 (서비스 중단 방지) */ }
   }
   return true;
 }

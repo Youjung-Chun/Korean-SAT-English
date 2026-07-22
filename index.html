@@ -327,6 +327,10 @@ document.querySelectorAll(".loginProviderBtn").forEach(btn => {
   btn.addEventListener("click", () => signInWith(btn.dataset.provider));
 });
 </script>
+<script>
+/* 방문 기록 (IP는 서버에서만 추출·보관, 방침 고지됨) — 실패해도 무시 */
+fetch("/api/visit",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({page:location.pathname}),keepalive:true}).catch(()=>{});
+</script>
 <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>

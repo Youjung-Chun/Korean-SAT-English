@@ -15,8 +15,10 @@ module.exports = async (req, res) => {
   }
 
   try {
-    // Vercel에서 실제 접속자 IP 얻기 (guest-check.js 와 동일)
+    // 실제 접속자 IP: liel.app 은 Cloudflare 프록시를 거치므로
+    // cf-connecting-ip(진짜 방문자 IP)를 먼저 읽음. 없으면 기존 방식.
     const ip =
+      req.headers["cf-connecting-ip"] ||
       (req.headers["x-forwarded-for"] || "").split(",")[0].trim() ||
       req.headers["x-real-ip"] ||
       "unknown";

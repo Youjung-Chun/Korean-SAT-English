@@ -150,6 +150,11 @@
   .word.savable{cursor:pointer;transition:background .15s;}
   .word.savable:hover{background:color-mix(in srgb,var(--vocab) 12%,transparent);}
   .word .vbtn{margin-left:auto;flex-shrink:0;font-size:12px;color:var(--faint);user-select:none;}
+  .word.saved:hover{background:color-mix(in srgb,#D4574E 10%,transparent);}
+  .word.saved:hover .vbtn{color:#D4574E;}
+  .vocabTip{position:relative;background:var(--primary);color:#fff;font-size:12px;line-height:1.55;padding:9px 30px 9px 12px;border-radius:10px;margin-bottom:10px;}
+  .vocabTip::after{content:"";position:absolute;left:18px;bottom:-6px;border-left:6px solid transparent;border-right:6px solid transparent;border-top:6px solid var(--primary);}
+  .vocabTip .tipX{position:absolute;right:5px;top:5px;background:none;border:0;color:#fff;opacity:.75;cursor:pointer;font-size:13px;line-height:1;padding:3px;font-family:inherit;}
   .word.saved{background:color-mix(in srgb,var(--saved) 10%,transparent);}
   .word.saved .vbtn{color:var(--saved);}
 
@@ -538,7 +543,7 @@ function showResults(items,loading){
 function fillExplain(ov){$('#solve').classList.remove('hide');if(ov.type){qtypeEl.textContent=ov.type;qtypeEl.classList.remove('hide');}themeEl.innerHTML=ov.theme||'—';summaryEl.innerHTML=ov.summary||'—';if(ov.answer){ansVal.textContent=ov.answer;ansReason.innerHTML=ov.answerReason||'';answerBox.classList.remove('hide');}}
 function fillChoices(ch){const list=ch.choiceAnalysis||[];if(!list.length)return;choiceList.innerHTML=list.map(c=>'<li class="choice '+(c.correct?'correct':'')+'"><div class="t"><span class="lab">'+esc(c.label||'')+'</span><span class="tx">'+esc(c.text||'')+'</span><span class="tag">'+(c.correct?'정답':'오답')+'</span></div><div class="note">'+(c.note||'')+'</div></li>').join('');choiceBox.classList.remove('hide');}
 function solveError(){$('#solve').classList.remove('hide');themeEl.innerHTML='해설을 불러오지 못했어요.';summaryEl.innerHTML='—';}
-function fillRow(i,d){document.getElementById('body-'+i).innerHTML=bodyHTML(d);if(hideBtn.getAttribute('aria-pressed')==='true'){const t=document.querySelector('#body-'+i+' .box-trans');if(t)t.classList.add('hidden');}}
+function fillRow(i,d){document.getElementById('body-'+i).innerHTML=bodyHTML(d);if(hideBtn.getAttribute('aria-pressed')==='true'){const t=document.querySelector('#body-'+i+' .box-trans');if(t)t.classList.add('hidden');}const rw=rowEls[i];if(rw&&rw.classList.contains('open'))maybeShowVocabTip(rw);}
 function bodyHTML(d){
   const words=(d.words||[]).map(p=>{
     let w,m;
@@ -558,7 +563,7 @@ function bodyHTML(d){
 }
 function cat(key,label,html){const lab={vocab:'lab-vocab',grammar:'lab-grammar',explain:'lab-explain'}[key];const box={vocab:'box-vocab',grammar:'box-grammar',explain:'box-explain'}[key];return '<div class="cat"><div class="clab '+lab+'"><i></i>'+label+'</div><div class="cbox '+box+'">'+html+'</div></div>';}
 function skeleton(){return '<div class="sk" style="width:70%"></div><div class="sk" style="width:92%"></div><div class="sk" style="width:55%"></div>';}
-function toggle(i){const row=rowEls[i];const open=!row.classList.contains('open');row.classList.toggle('open',open);row.querySelector('.rowhead').setAttribute('aria-expanded',open);psents[i].classList.toggle('active',open);}
+function toggle(i){const row=rowEls[i];const open=!row.classList.contains('open');row.classList.toggle('open',open);row.querySelector('.rowhead').setAttribute('aria-expanded',open);psents[i].classList.toggle('active',open);if(open)maybeShowVocabTip(row);}
 hideBtn.addEventListener('click',()=>{const on=hideBtn.getAttribute('aria-pressed')==='true';hideBtn.setAttribute('aria-pressed',!on);document.querySelectorAll('.box-trans').forEach(t=>t.classList.toggle('hidden',!on));});
 rows.addEventListener('click',e=>{const t=e.target.closest('.box-trans.hidden');if(t){e.stopPropagation();t.classList.remove('hidden');}});
 function showErr(m){errBox.textContent=m;errBox.classList.remove('hide');}
@@ -1151,18 +1156,57 @@ function updateVocabCount(){
   if (el) el.textContent = currentUser ? vocabSet.size + " / " + VOCAB_LIMIT : "";
 }
 
-// 단어 클릭 → 저장. 이미 분석된 결과라 Claude 재호출 없음
+// 단어 줄 클릭 → 저장, 이미 담긴 단어면 → 빼기 (토글). Claude 재호출 없음
 rows.addEventListener("click", async e => {
+  if (e.target.closest(".vocabTip .tipX")) { dismissVocabTip(true); return; }
+  if (e.target.closest(".vocabTip")) return;
   const el = e.target.closest(".word.savable");
   if (!el) return;
   e.stopPropagation();
   const word = el.querySelector(".w").textContent;
-  if (hasVocab(word)) return;
+  if (hasVocab(word)) { await removeVocab(el, word); return; }
   const meaning = el.querySelector(".m").textContent;
   const row = el.closest(".row");
   const source = row ? row.querySelector(".stext").textContent : "";
   await saveVocab(el, word, meaning, source);
 });
+
+// 담긴 단어 다시 클릭 → 단어장에서 빼기
+async function removeVocab(el, word){
+  if (!currentUser) return;
+  const btn = el.querySelector(".vbtn");
+  if (btn) btn.textContent = "…";
+  // 저장 시점과 대소문자가 달라도 지워지게 ilike 매칭 (%·_·\ 는 이스케이프)
+  const pattern = word.replace(/([%_\\])/g, "\\$1");
+  const { error } = await sb.from("vocab").delete()
+    .eq("user_id", currentUser.id)
+    .ilike("word", pattern);
+  if (error) {
+    console.error("단어 빼기 실패:", error);
+    if (btn) btn.textContent = "✓";
+    return;
+  }
+  vocabSet.delete(vocabKey(word));
+  markVocabInView(word, false);
+  updateVocabCount();
+}
+
+/* 단어 저장 안내 말풍선 — 분석 결과를 처음 펼칠 때 한 번만 */
+function vocabTipSeen(){ try { return localStorage.getItem("liel_vocab_tip") === "1"; } catch(e){ return true; } }
+function dismissVocabTip(remember){
+  document.querySelectorAll(".vocabTip").forEach(t => t.remove());
+  if (remember) { try { localStorage.setItem("liel_vocab_tip", "1"); } catch(e){} }
+}
+function maybeShowVocabTip(row){
+  if (!currentUser || vocabTipSeen()) return;
+  if (document.querySelector(".vocabTip")) return;
+  const box = row.querySelector(".box-vocab");
+  if (!box || !box.querySelector(".word.savable")) return;
+  const tip = document.createElement("div");
+  tip.className = "vocabTip";
+  tip.innerHTML = '💡 단어 줄을 누르면 <b>내 단어장</b>에 담겨요.<br>담은 단어를 한 번 더 누르면 빠져요!<button class="tipX" aria-label="닫기">✕</button>';
+  box.prepend(tip);
+}
 
 async function saveVocab(el, word, meaning, source){
   if (!currentUser) return;
@@ -1189,6 +1233,7 @@ async function saveVocab(el, word, meaning, source){
   vocabSet.add(vocabKey(word));
   markVocabInView(word, true);
   updateVocabCount();
+  dismissVocabTip(true);  // 첫 저장 성공 = 안내 역할 끝
 }
 
 // 화면에 떠 있는 같은 단어를 모두 저장됨/해제 상태로 맞춤

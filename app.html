@@ -180,6 +180,33 @@
   .groupChip.on span{color:var(--primary);}
   .quizBtn{background:var(--primary);color:#fff;border:0;border-radius:12px;padding:13px 22px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;}
   .quizBtnGhost{background:none;color:var(--sub);border:1.5px solid var(--line);border-radius:12px;padding:13px 22px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;}
+
+  /* ===== 분석지 인쇄 (v5.4) ===== */
+  #printSheet{display:none;}
+  @media print{
+    @page{margin:14mm;}
+    body > :not(#printSheet){display:none !important;}
+    #printSheet{display:block !important;color:#111;font-family:var(--kr);font-size:10.5pt;line-height:1.65;}
+    .psheet-head{display:flex;align-items:flex-end;justify-content:space-between;border-bottom:2.5px solid #111;padding-bottom:8px;margin-bottom:14px;}
+    .psheet-logo{font-size:19pt;font-weight:800;letter-spacing:-0.5px;}
+    .psheet-title{font-size:10.5pt;font-weight:700;text-align:right;max-width:120mm;}
+    .psheet-date{font-size:8.5pt;color:#666;text-align:right;margin-top:2px;}
+    .ps-ov{border:1.2px solid #999;border-radius:6px;padding:9px 12px;margin-bottom:12px;break-inside:avoid;font-size:9.5pt;}
+    .ps-ov .row{margin:2px 0;}
+    .ps-ov .lab{font-weight:800;margin-right:6px;}
+    .ps-sent{break-inside:avoid;border-top:1px solid #ccc;padding:9px 2px 10px;}
+    .ps-en{font-size:10.5pt;font-weight:650;margin-bottom:5px;}
+    .ps-num{display:inline-block;min-width:17px;font-weight:800;}
+    .ps-cat{margin:4px 0;font-size:9.5pt;}
+    .ps-cat > .lab{display:inline-block;font-weight:700;font-size:8pt;border:1.2px solid #111;border-radius:4px;padding:0 5px;margin-right:6px;vertical-align:1.5px;}
+    .ps-words{width:100%;border-collapse:collapse;margin:3px 0 2px;}
+    .ps-words td{border-bottom:1px dotted #bbb;padding:1.5px 4px;font-size:9.5pt;}
+    .ps-words td:first-child{font-weight:650;width:34%;}
+    .ps-blank{border-bottom:1px solid #999;height:17px;margin:9px 0 2px;}
+    .ps-grammar ol.grammarList{margin:2px 0 2px 20px;padding:0;}
+    .ps-grammar code{font-family:inherit;font-weight:700;background:none;padding:0;}
+    .psheet-foot{margin-top:14px;padding-top:7px;border-top:1px solid #ccc;text-align:center;font-size:8pt;color:#888;}
+  }
   .sk{height:11px;border-radius:5px;background:linear-gradient(90deg,var(--line),color-mix(in srgb,var(--line) 40%,transparent),var(--line));background-size:200% 100%;animation:sh 1.2s infinite;margin:8px 0;}
   @keyframes sh{to{background-position:-200% 0;}}
   .status{display:flex;align-items:center;gap:9px;margin:14px 0 4px;color:var(--sub);font-size:13px;}
@@ -410,6 +437,7 @@
     <div class="seclabel">문장별 분석</div>
     <div class="controls">
       <button class="toggle" id="hideTrans" aria-pressed="false">해석 가리기</button>
+      <button class="toggle" id="printBtn" title="프리미엄 예정 기능 · 베타 기간 무료">📄 분석지 저장</button>
       <span class="counter">문장 <b id="total">0</b>개</span>
     </div>
     <div class="legend">
@@ -422,6 +450,9 @@
   </section>
 
 
+
+  <!-- 분석지 인쇄 전용 영역 (화면에선 숨김, 인쇄 시에만 표시) -->
+  <div id="printSheet" aria-hidden="true"></div>
 
   <!-- 하단 footer -->
   <footer style="margin-top:32px;padding:20px 0;border-top:1px solid var(--line);text-align:center;font-size:12px;color:var(--faint);">
@@ -481,7 +512,7 @@ function ctx(ex){let t="[지문]\n"+(ex.passage||[]).join(' ');if(ex.question)t+
 
 /* ===== 실행 ===== */
 goBtn.addEventListener('click',run);
-demoBtn.addEventListener('click',()=>{showResults(SAMPLE,false);fillExplain(SAMPLE_OV);if(SAMPLE_OV.choiceAnalysis)fillChoices(SAMPLE_OV);});
+demoBtn.addEventListener('click',()=>{lastAnalysis={title:"예시 지문",sentences:SAMPLE,overview:SAMPLE_OV};showResults(SAMPLE,false);fillExplain(SAMPLE_OV);if(SAMPLE_OV.choiceAnalysis)fillChoices(SAMPLE_OV);});
 backBtn.addEventListener('click',()=>{resultView.classList.add('hide');inputView.classList.remove('hide');window.scrollTo(0,0);});
 
 async function run(){
@@ -489,7 +520,7 @@ async function run(){
   const text=ta.value.trim();
   if(!text&&!pendingImage){showErr("지문을 붙여넣거나 캡처 이미지를 올려 주세요.");return;}
   if(!(await checkLimit()))return;
-  currentPassageId=null;currentPassageGroup=null;
+  currentPassageId=null;currentPassageGroup=null;lastAnalysis=null;
   goBtn.disabled=true;goBtn.textContent="분석 중…";
   try{
     const exSys="너는 수능·내신 영어 문제를 다루는 전문가야. 입력(텍스트/이미지)에서 정보를 추출해 오직 JSON 객체만 출력. 마크다운 금지. 키:\n- passage: 읽기 본문을 원문 그대로 문장 단위 문자열 배열. 각주·한국어 지시문·요약문·선지는 제외.\n- question: 한국어 지시문과 (있다면) 빈칸 포함 요약문장을 합친 문자열. 없으면 \"\".\n- choices: 선택지가 있으면 [\"① ...\"] 배열, 없으면 [].";
@@ -513,6 +544,7 @@ async function run(){
       }
     })().catch(()=>solveError());
     await Promise.all([...sJobs,oJob]);statusBar.classList.add('hide');
+    lastAnalysis={title:null,sentences:sentenceResults,overview:overviewResult};
     // 로그인=자동 저장(=사용량 카운트), 비회원=로컬 카운트
     if(currentUser){await savePassage(passage.map(en=>({en})), sentenceResults, overviewResult);}
     else{bumpGuestCount();}
@@ -529,6 +561,7 @@ async function analyzeOne(sentence){
 /* ===== 렌더 ===== */
 const chev='<svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
 let rowEls=[],psents=[];
+let lastAnalysis=null;  // 분석지 인쇄용: 현재 화면의 분석 데이터 {title, sentences, overview}
 function resetSolve(){$('#solve').classList.add('hide');qtypeEl.classList.add('hide');answerBox.classList.add('hide');choiceBox.classList.add('hide');themeEl.innerHTML='';summaryEl.innerHTML='';}
 function showResults(items,loading){
   inputView.classList.add('hide');resultView.classList.remove('hide');
@@ -834,9 +867,11 @@ async function openSaved(id) {
   }));
   if (!sentences.length) {
     // 저장된 결과가 없거나 이상 → 원문만 보이도록
+    lastAnalysis = null;
     showResults([{en: data.passage_text}], false);
     return;
   }
+  lastAnalysis = { title: data.title || null, sentences: sentences, overview: data.analysis?.overview || null };
   showResults(sentences, false);
   if (data.analysis?.overview) {
     fillExplain(data.analysis.overview);
@@ -1477,6 +1512,60 @@ function showQuizResult(){
       '<button id="quizExitBtn" class="quizBtnGhost" style="flex:1;">단어장으로</button>' +
     '</div>';
 }
+
+
+
+/* ===== 분석지 저장 (v5.4) — 프리미엄 예정, 베타 기간 무료 공개 ===== */
+const printBtn = document.getElementById('printBtn');
+const printSheet = document.getElementById('printSheet');
+// 인쇄 CSS(body > :not(#printSheet))가 작동하려면 body 직속이어야 함 — 구조와 무관하게 보장
+document.body.appendChild(printSheet);
+// ⚠️ 프리미엄 게이트 지점: 결제 오픈 시 아래 true 를 회원의 프리미엄 여부 체크로 교체
+const SHEET_EXPORT_OPEN = true;
+
+function psWords(words){
+  const list=(words||[]).map(p=>{let w,m;if(Array.isArray(p)){[w,m]=p;}else{w=p.w||p.word||'';m=p.m||p.meaning||'';}return '<tr><td>'+esc(w)+'</td><td>'+esc(m)+'</td></tr>';}).join('');
+  return list?'<table class="ps-words">'+list+'</table>':'';
+}
+
+function buildPrintSheet(){
+  const a=lastAnalysis;
+  const t=new Date();
+  const dateStr=t.getFullYear()+'. '+(t.getMonth()+1)+'. '+t.getDate()+'.';
+  const title=a.title||(a.sentences[0]&&a.sentences[0].en?String(a.sentences[0].en).slice(0,40)+'…':'분석지');
+  const hideKr=hideBtn.getAttribute('aria-pressed')==='true';  // 해석 가리기 켜져 있으면 빈칸(자가 시험) 버전
+  let html='<div class="psheet-head"><div class="psheet-logo">liel</div><div><div class="psheet-title">'+esc(title)+'</div><div class="psheet-date">'+dateStr+' · liel.app'+(hideKr?' · 해석 빈칸 버전':'')+'</div></div></div>';
+  const ov=a.overview;
+  if(ov&&(ov.theme||ov.summary||ov.answer)){
+    html+='<div class="ps-ov">';
+    if(ov.type)html+='<div class="row"><span class="lab">유형</span>'+esc(ov.type)+'</div>';
+    if(ov.theme)html+='<div class="row"><span class="lab">주제</span>'+ov.theme+'</div>';
+    if(ov.summary)html+='<div class="row"><span class="lab">요약</span>'+ov.summary+'</div>';
+    if(ov.answer)html+='<div class="row"><span class="lab">정답</span>'+esc(ov.answer)+(ov.answerReason?' — '+ov.answerReason:'')+'</div>';
+    html+='</div>';
+  }
+  html+=a.sentences.map((s,i)=>{
+    let b='<div class="ps-sent"><div class="ps-en"><span class="ps-num">'+(i+1)+'</span>'+esc(s.en||'')+'</div>';
+    const w=psWords(s.words);
+    if(w)b+='<div class="ps-cat"><span class="lab">단어</span>'+w+'</div>';
+    if(s.grammar&&s.grammar!=='—')b+='<div class="ps-cat ps-grammar"><span class="lab">어법</span>'+formatGrammar(s.grammar)+'</div>';
+    if(hideKr)b+='<div class="ps-cat"><span class="lab">해석</span><div class="ps-blank"></div></div>';
+    else{
+      if(s.kr)b+='<div class="ps-cat"><span class="lab">해석</span>'+esc(s.kr)+'</div>';
+      if(s.explain&&s.explain!=='—')b+='<div class="ps-cat"><span class="lab">쉬운 설명</span>'+s.explain+'</div>';
+    }
+    return b+'</div>';
+  }).join('');
+  html+='<div class="psheet-foot">liel.app — 막힌 문장이, 또렷해진다</div>';
+  printSheet.innerHTML=html;
+}
+
+printBtn.addEventListener('click',()=>{
+  if(!SHEET_EXPORT_OPEN){alert('분석지 저장은 프리미엄 기능이에요!');return;}
+  if(!lastAnalysis||!lastAnalysis.sentences||!lastAnalysis.sentences.length){alert('분석이 끝난 뒤에 저장할 수 있어요.');return;}
+  buildPrintSheet();
+  window.print();  // 브라우저 인쇄 대화상자 → "PDF로 저장" 또는 종이 인쇄
+});
 
 </script>
 <script>

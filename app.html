@@ -513,6 +513,9 @@ function ctx(ex){let t="[지문]\n"+(ex.passage||[]).join(' ');if(ex.question)t+
 /* ===== 실행 ===== */
 goBtn.addEventListener('click',run);
 demoBtn.addEventListener('click',()=>{lastAnalysis={title:"예시 지문",sentences:SAMPLE,overview:SAMPLE_OV};showResults(SAMPLE,false);fillExplain(SAMPLE_OV);if(SAMPLE_OV.choiceAnalysis)fillChoices(SAMPLE_OV);});
+/* 랜딩의 "실제 분석 보기"로 들어오면(?demo=1) 예시를 바로 펼쳐 보여줌
+   — 스크립트가 끝난 뒤 실행해야 함(파싱 중엔 아직 초기화 안 된 변수가 있음) */
+if(new URLSearchParams(location.search).get('demo')==='1')setTimeout(()=>demoBtn.click(),0);
 backBtn.addEventListener('click',()=>{resultView.classList.add('hide');inputView.classList.remove('hide');window.scrollTo(0,0);});
 
 async function run(){

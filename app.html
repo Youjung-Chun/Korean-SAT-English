@@ -181,31 +181,57 @@
   .quizBtn{background:var(--primary);color:#fff;border:0;border-radius:12px;padding:13px 22px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;}
   .quizBtnGhost{background:none;color:var(--sub);border:1.5px solid var(--line);border-radius:12px;padding:13px 22px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;}
 
-  /* ===== 분석지 인쇄 (v5.4) ===== */
-  #printSheet{display:none;}
+  /* ===== 분석지 미리보기 + 인쇄 (v5.5) ===== */
+  #sheetPreview{display:none;position:fixed;inset:0;z-index:170;background:#6f737a;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+  #sheetPreview.on{display:block;}
+  .sheetbar{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--surface);border-bottom:1px solid var(--line);}
+  .sheetbar .ttl{font-size:14px;font-weight:700;color:var(--ink);white-space:nowrap;}
+  .sheetbar .sp{margin-left:auto;display:flex;align-items:center;gap:10px;flex-shrink:0;}
+  .sheetBack{background:none;border:0;font-size:20px;color:var(--ink);cursor:pointer;padding:2px 6px;line-height:1;flex-shrink:0;}
+  .sheetOpt{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--sub);cursor:pointer;user-select:none;white-space:nowrap;}
+  .sheetPrint{background:var(--primary);color:#fff;border:0;border-radius:10px;padding:9px 15px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;}
+  @media (max-width:520px){
+    .sheetbar .ttl{display:none;}
+    .sheetPrint .pdfword{display:none;}
+  }
+  .sheetwrap{padding:16px 10px 40px;display:flex;justify-content:center;}
+  .sheetHint{max-width:760px;margin:0 auto 10px;color:#e8eaee;font-size:11.5px;text-align:center;}
+  /* 분석지 본문 — 화면·인쇄 공용 */
+  #printSheet{background:#fff;color:#111;width:min(760px,100%);padding:26px 24px;box-shadow:0 10px 34px rgba(0,0,0,.28);font-family:var(--kr);font-size:13px;line-height:1.65;}
+  .psheet-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;border-bottom:2.5px solid #111;padding-bottom:8px;margin-bottom:14px;}
+  .psheet-logo{font-size:24px;font-weight:800;letter-spacing:-0.5px;}
+  .psheet-title{font-size:13px;font-weight:700;text-align:right;}
+  .psheet-date{font-size:11px;color:#666;text-align:right;margin-top:2px;}
+  .ps-ov{border:1.2px solid #999;border-radius:6px;padding:9px 12px;margin-bottom:12px;font-size:12.5px;}
+  .ps-ov .row{margin:2px 0;}
+  .ps-ov .lab{font-weight:800;margin-right:6px;}
+  .ps-sent{border-top:1px solid #ccc;padding:9px 2px 10px;}
+  .ps-en{font-size:13.5px;font-weight:650;margin-bottom:5px;}
+  .ps-num{display:inline-block;min-width:17px;font-weight:800;}
+  .ps-cat{margin:4px 0;font-size:12.5px;}
+  .ps-cat > .lab{display:inline-block;font-weight:700;font-size:10.5px;border:1.2px solid #111;border-radius:4px;padding:0 5px;margin-right:6px;vertical-align:1.5px;}
+  .ps-words{width:100%;border-collapse:collapse;margin:3px 0 2px;}
+  .ps-words td{border-bottom:1px dotted #bbb;padding:1.5px 4px;font-size:12.5px;}
+  .ps-words td:first-child{font-weight:650;width:34%;}
+  .ps-blank{border-bottom:1px solid #999;height:19px;margin:9px 0 2px;}
+  .ps-grammar ol.grammarList{margin:2px 0 2px 20px;padding:0;}
+  .ps-grammar code{font-family:inherit;font-weight:700;background:none;padding:0;}
+  .psheet-foot{margin-top:14px;padding-top:7px;border-top:1px solid #ccc;text-align:center;font-size:10.5px;color:#888;}
   @media print{
     @page{margin:14mm;}
-    body > :not(#printSheet){display:none !important;}
-    #printSheet{display:block !important;color:#111;font-family:var(--kr);font-size:10.5pt;line-height:1.65;}
-    .psheet-head{display:flex;align-items:flex-end;justify-content:space-between;border-bottom:2.5px solid #111;padding-bottom:8px;margin-bottom:14px;}
-    .psheet-logo{font-size:19pt;font-weight:800;letter-spacing:-0.5px;}
-    .psheet-title{font-size:10.5pt;font-weight:700;text-align:right;max-width:120mm;}
-    .psheet-date{font-size:8.5pt;color:#666;text-align:right;margin-top:2px;}
-    .ps-ov{border:1.2px solid #999;border-radius:6px;padding:9px 12px;margin-bottom:12px;break-inside:avoid;font-size:9.5pt;}
-    .ps-ov .row{margin:2px 0;}
-    .ps-ov .lab{font-weight:800;margin-right:6px;}
-    .ps-sent{break-inside:avoid;border-top:1px solid #ccc;padding:9px 2px 10px;}
-    .ps-en{font-size:10.5pt;font-weight:650;margin-bottom:5px;}
-    .ps-num{display:inline-block;min-width:17px;font-weight:800;}
-    .ps-cat{margin:4px 0;font-size:9.5pt;}
-    .ps-cat > .lab{display:inline-block;font-weight:700;font-size:8pt;border:1.2px solid #111;border-radius:4px;padding:0 5px;margin-right:6px;vertical-align:1.5px;}
-    .ps-words{width:100%;border-collapse:collapse;margin:3px 0 2px;}
-    .ps-words td{border-bottom:1px dotted #bbb;padding:1.5px 4px;font-size:9.5pt;}
-    .ps-words td:first-child{font-weight:650;width:34%;}
-    .ps-blank{border-bottom:1px solid #999;height:17px;margin:9px 0 2px;}
-    .ps-grammar ol.grammarList{margin:2px 0 2px 20px;padding:0;}
-    .ps-grammar code{font-family:inherit;font-weight:700;background:none;padding:0;}
-    .psheet-foot{margin-top:14px;padding-top:7px;border-top:1px solid #ccc;text-align:center;font-size:8pt;color:#888;}
+    body > :not(#sheetPreview){display:none !important;}
+    #sheetPreview{display:block !important;position:static !important;background:none;overflow:visible;}
+    .sheetbar,.sheetHint{display:none !important;}
+    .sheetwrap{padding:0;display:block;}
+    #printSheet{width:auto;max-width:none;padding:0;box-shadow:none;font-size:10.5pt;}
+    .psheet-logo{font-size:19pt;} .psheet-title{font-size:10.5pt;max-width:120mm;} .psheet-date{font-size:8.5pt;}
+    .ps-ov{font-size:9.5pt;break-inside:avoid;}
+    .ps-sent{break-inside:avoid;}
+    .ps-en{font-size:10.5pt;}
+    .ps-cat{font-size:9.5pt;} .ps-cat > .lab{font-size:8pt;}
+    .ps-words td{font-size:9.5pt;}
+    .ps-blank{height:17px;}
+    .psheet-foot{font-size:8pt;}
   }
   .sk{height:11px;border-radius:5px;background:linear-gradient(90deg,var(--line),color-mix(in srgb,var(--line) 40%,transparent),var(--line));background-size:200% 100%;animation:sh 1.2s infinite;margin:8px 0;}
   @keyframes sh{to{background-position:-200% 0;}}
@@ -451,8 +477,18 @@
 
 
 
-  <!-- 분석지 인쇄 전용 영역 (화면에선 숨김, 인쇄 시에만 표시) -->
-  <div id="printSheet" aria-hidden="true"></div>
+  <!-- 분석지 미리보기 (화면) + 인쇄 대상 -->
+  <div id="sheetPreview" aria-hidden="true">
+    <div class="sheetbar">
+      <button class="sheetBack" id="sheetBack" aria-label="닫기">←</button>
+      <span class="ttl">분석지 미리보기</span>
+      <span class="sp">
+        <label class="sheetOpt"><input type="checkbox" id="sheetBlank"> 해석 빈칸</label>
+        <button class="sheetPrint" id="sheetPrint">🖨 인쇄<span class="pdfword"> · PDF 저장</span></button>
+      </span>
+    </div>
+    <div class="sheetwrap"><div><div class="sheetHint">아래 모양 그대로 인쇄돼요. PDF로 저장하려면 인쇄 창에서 “PDF로 저장”을 고르세요.</div><div id="printSheet"></div></div></div>
+  </div>
 
   <!-- 하단 footer -->
   <footer style="margin-top:32px;padding:20px 0;border-top:1px solid var(--line);text-align:center;font-size:12px;color:var(--faint);">
@@ -1302,6 +1338,8 @@ function closeVocabScreen(){
 document.getElementById("vocabBack").addEventListener("click", closeVocabScreen);
 document.addEventListener("keydown", e => {
   if (e.key !== "Escape") return;
+  // 분석지 미리보기가 맨 위면 그쪽에서 처리 (아래 화면은 건드리지 않음)
+  if (typeof sheetPreviewOpen === "function" && sheetPreviewOpen()) return;
   // 시험 화면이 위에 떠 있으면 그것만 닫음
   if (quizScreen.getAttribute("aria-hidden") === "false") { closeQuizScreen(); return; }
   closeVocabScreen();
@@ -1521,8 +1559,10 @@ function showQuizResult(){
 /* ===== 분석지 저장 (v5.4) — 프리미엄 예정, 베타 기간 무료 공개 ===== */
 const printBtn = document.getElementById('printBtn');
 const printSheet = document.getElementById('printSheet');
-// 인쇄 CSS(body > :not(#printSheet))가 작동하려면 body 직속이어야 함 — 구조와 무관하게 보장
-document.body.appendChild(printSheet);
+const sheetPreview = document.getElementById('sheetPreview');
+const sheetBlankChk = document.getElementById('sheetBlank');
+// 인쇄 CSS(body > :not(#sheetPreview))가 작동하려면 body 직속이어야 함 — 구조와 무관하게 보장
+document.body.appendChild(sheetPreview);
 // ⚠️ 프리미엄 게이트 지점: 결제 오픈 시 아래 true 를 회원의 프리미엄 여부 체크로 교체
 const SHEET_EXPORT_OPEN = true;
 
@@ -1536,7 +1576,7 @@ function buildPrintSheet(){
   const t=new Date();
   const dateStr=t.getFullYear()+'. '+(t.getMonth()+1)+'. '+t.getDate()+'.';
   const title=a.title||(a.sentences[0]&&a.sentences[0].en?String(a.sentences[0].en).slice(0,40)+'…':'분석지');
-  const hideKr=hideBtn.getAttribute('aria-pressed')==='true';  // 해석 가리기 켜져 있으면 빈칸(자가 시험) 버전
+  const hideKr=sheetBlankChk.checked;  // 미리보기의 '해석 빈칸' 옵션 = 자가 시험 버전
   let html='<div class="psheet-head"><div class="psheet-logo">liel</div><div><div class="psheet-title">'+esc(title)+'</div><div class="psheet-date">'+dateStr+' · liel.app'+(hideKr?' · 해석 빈칸 버전':'')+'</div></div></div>';
   const ov=a.overview;
   if(ov&&(ov.theme||ov.summary||ov.answer)){
@@ -1563,12 +1603,28 @@ function buildPrintSheet(){
   printSheet.innerHTML=html;
 }
 
+function openSheetPreview(){
+  buildPrintSheet();
+  sheetPreview.classList.add('on');
+  sheetPreview.setAttribute('aria-hidden','false');
+  sheetPreview.scrollTop=0;
+}
+function closeSheetPreview(){
+  sheetPreview.classList.remove('on');
+  sheetPreview.setAttribute('aria-hidden','true');
+}
+function sheetPreviewOpen(){return sheetPreview.classList.contains('on');}
+
 printBtn.addEventListener('click',()=>{
   if(!SHEET_EXPORT_OPEN){alert('분석지 저장은 프리미엄 기능이에요!');return;}
   if(!lastAnalysis||!lastAnalysis.sentences||!lastAnalysis.sentences.length){alert('분석이 끝난 뒤에 저장할 수 있어요.');return;}
-  buildPrintSheet();
-  window.print();  // 브라우저 인쇄 대화상자 → "PDF로 저장" 또는 종이 인쇄
+  sheetBlankChk.checked=hideBtn.getAttribute('aria-pressed')==='true';  // 화면에서 해석 가려뒀으면 기본값도 빈칸
+  openSheetPreview();
 });
+document.getElementById('sheetBack').addEventListener('click',closeSheetPreview);
+sheetBlankChk.addEventListener('change',buildPrintSheet);   // 옵션 바꾸면 즉시 다시 그림
+document.getElementById('sheetPrint').addEventListener('click',()=>window.print());
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&sheetPreviewOpen())closeSheetPreview();});
 
 </script>
 <script>

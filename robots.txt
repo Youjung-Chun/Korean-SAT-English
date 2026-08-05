@@ -1,0 +1,13 @@
+# liel — 검색엔진 크롤러 안내
+User-agent: *
+Allow: /
+
+# 네이버 검색로봇
+User-agent: Yeti
+Allow: /
+
+# 다음(카카오) 검색로봇
+User-agent: Daum
+Allow: /
+
+Sitemap: https://liel.app/sitemap.xml
